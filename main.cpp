@@ -11,6 +11,10 @@ I don't know if I want to add an a cost system or not but if I do I would keep a
 */
 
 #include <iostream>
+#include <string>
+#include <vector>
+#include <iomanip>
+#include <fstream>
 
 int main() {
     return 0;
