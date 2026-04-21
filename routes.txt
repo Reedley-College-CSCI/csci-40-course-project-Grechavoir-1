@@ -1,0 +1,63 @@
+Mercury Venus 50
+Mercury Earth 92
+Mercury Mars 170
+Mercury Jupiter 720
+Mercury Saturn 1367
+Mercury Uranus 2815
+Mercury Neptune 4443
+
+Venus Mercury 50
+Venus Earth 41
+Venus Mars 120
+Venus Jupiter 670
+Venus Saturn 1316
+Venus Uranus 2765
+Venus Neptune 4393
+
+Earth Mercury 92
+Earth Venus 41
+Earth Mars 78
+Earth Jupiter 629
+Earth Saturn 1275
+Earth Uranus 2724
+Earth Neptune 4351
+
+Mars Mercury 170
+Mars Venus 120
+Mars Earth 78
+Mars Jupiter 550
+Mars Saturn 1197
+Mars Uranus 2646
+Mars Neptune 4273
+
+Jupiter Mercury 720
+Jupiter Venus 670
+Jupiter Earth 629
+Jupiter Mars 550
+Jupiter Saturn 646
+Jupiter Uranus 2095
+Jupiter Neptune 3723
+
+Saturn Mercury 1367
+Saturn Venus 1316
+Saturn Earth 1275
+Saturn Mars 1197
+Saturn Jupiter 646
+Saturn Uranus 1449
+Saturn Neptune 3076
+
+Uranus Mercury 2815
+Uranus Venus 2765
+Uranus Earth 2724
+Uranus Mars 2646
+Uranus Jupiter 2095
+Uranus Saturn 1449
+Uranus Neptune 1627
+
+Neptune Mercury 4443
+Neptune Venus 4393
+Neptune Earth 4351
+Neptune Mars 4273
+Neptune Jupiter 3723
+Neptune Saturn 3076
+Neptune Uranus 1627
