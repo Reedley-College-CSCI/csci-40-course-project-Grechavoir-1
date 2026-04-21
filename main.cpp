@@ -27,6 +27,12 @@ struct Route {
      double distance; // In millions of kilometers
 };
 
+struct Material {
+    string name; // Name of the material
+    double amount; // Amount of material (kg, liters, etc.)
+    double cost; // Cost per unit
+};
+
 const int MAX_ROUTES = 100; // Maximum number of routes
 const int MAX_PLANETS = 8; // Maximum number of planets
 Route routes[MAX_ROUTES]; // Array to store routes
@@ -34,6 +40,13 @@ int routeCount = 0; // Variable to keep track of the number of routes
 
 
 double MAX_FUEL = 1000.0; // Maximum fuel capacity
+double income = 0.0; // Variable to track income
+double FLAT_DAY_PAY_RATE = 2000.0; // Flat pay rate for each day of travel
+int rateOfSpeed = 100; // Speed of the spaceship in million kilometers per day
+int daysTraveled = 0; // Variable to track the number of days traveled
+const int MAX_MATERIALS = 100; // Maximum number of materials
+string materials[MAX_MATERIALS]; // Array to store materials
+int materialCount = 0; // Variable to keep track of the number of materials
 
 int main() {
     cout << fixed << setprecision(2); // Set decimal precision for output

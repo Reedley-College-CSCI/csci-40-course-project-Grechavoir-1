@@ -1,0 +1,13 @@
+Silica 0 1.73
+Magnesium 0 2.40
+Sulfur 0 4.50
+Potassium 0 400.00
+Iron 0 20.00
+Oxygen 0 3.50
+Hydrogen 0 20.00
+Helium 0 400.00
+Methane 0 3.00
+Ammonia 0 24.00
+Nitrogen 0 0.50
+Phosphorus 0 150.00
+Nickel 0 19.00
