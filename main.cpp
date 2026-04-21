@@ -61,34 +61,57 @@ int main() {
     double fuel = 2500.0; // Initial fuel
     double fuelPercentage = (fuel / MAX_FUEL) * 100;
 
-    cout << "Hello..." << endl << "Enter your name:" << endl;
+    cout << "Hello..." << endl << "Please enter your name:" << endl;
 
     string charName;
     getline(cin, charName);
 
+    cout << "Are you ready to start your journey? (yes/no)" << endl;
+
+    string ready;
+    cin >> ready;
+
+    for (int i = 0; i < ready.length(); i++) {
+        ready[i] = tolower(ready[i]); // Convert the rest of the letters to lowercase
+    }
+
+    while (ready != "yes" && ready != "no") {
+        cout << "Invalid input. Please enter 'yes' or 'no':" << endl;
+        cin >> ready;
+
+        for (int i = 0; i < ready.length(); i++) {
+            ready[i] = tolower(ready[i]); // Convert the rest of the letters to lowercase
+        }
+    }
+
+    if (ready != "yes") {
+        cout << "Take your time to prepare. Come back when you are ready!" << endl;
+        return 0;
+    }
+
     cout << "\nWelcome to the Space Exploration Journey!" << endl;
     cout << "You have been drafted to venture the cosmos and"
          << " be a hero for your home planet!" << endl;
-    cout << "Do not fear the darkness of space, but look forward to the"
-         << " nearest star!" << endl;
-    cout << "Godspeed " << charName << "!" << endl;
 
      
     cout << "\n...Loading...\n...loading...\n...loading...\n" << endl;
     cout << "You are now in your spaceship, ready to explore the universe!" << endl;
     cout << "Your spaceship is at " << fuelPercentage << "% fuel." << endl;
 
-    printPlanets(); // Call the function to print planet names
+    cout << "Do not fear the darkness of space, but look forward to the"
+         << " nearest star!" << endl;
+    cout << "Godspeed " << charName << "!" << endl;
+
     loadRoutes(); // Call the function to load routes from the file
+
+    cout << "Here are the available planets you can travel to:" << endl;
+    printPlanets(); // Call the function to print planet names
 
     string destination;
     string origin = "Earth"; // Starting point
 
     cout << "You are currently on " << origin << ". Where would you like to go?" << endl;
-    getline(cin, destination);
-
-
-
+    cin >> destination;
 
     for (int i = 0; i < destination.length(); i++) {
         destination[i] = tolower(destination[i]); // Convert the rest of the letters to lowercase
