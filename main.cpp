@@ -55,9 +55,14 @@ int main() {
     cout << "You are now in your spaceship, ready to explore the universe!" << endl;
     cout << "Your spaceship is at " << fuelPercentage << "% fuel." << endl;
 
-    cout << "\nWhere would you like to go?" << endl;
     printPlanets(); // Call the function to print planet names
 
+    string destination;
+    string origin = "Earth"; // Starting point
+
+    cout << "You are currently on " << origin << ". Where would you like to go?" << endl;
+    getline(cin, destination);
+    
     return 0;
 }
 
