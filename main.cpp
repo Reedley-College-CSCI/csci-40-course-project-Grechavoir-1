@@ -12,7 +12,6 @@ I don't know if I want to add an a cost system or not but if I do I would keep a
 
 #include <iostream>
 #include <string>
-#include <vector>
 #include <iomanip>
 #include <fstream>
 
@@ -40,7 +39,7 @@ int main() {
     cout << "Godspeed " << charName << "!" << endl;
 
      
-    cout << "...Loading...\n...loading...\n...loading...\n" << endl;
+    cout << "\n...Loading...\n...loading...\n...loading...\n" << endl;
     cout << "You are now in your spaceship, ready to explore the universe!" << endl;
     cout << "Your spaceship is at " << fuelPercentage << "% fuel." << endl;
 
