@@ -116,21 +116,35 @@ int main() {
     for (int i = 0; i < destination.length(); i++) {
         destination[i] = tolower(destination[i]); // Convert the rest of the letters to lowercase
     }
-    destination[0] = toupper(destination[0]); // Capitalize the first letter of the destination
+    destination[0] = toupper(destination[0]); // Capitalize the first letter
 
-    if (destination == "Earth") {
+    while (destination != "Mercury" && destination != "Venus" && destination != "Earth" && destination != "Mars" && destination != "Jupiter"
+      && destination != "Saturn" && destination != "Neptune" && destination != "Uranus") {
+        cout << "Invalid destination. Please choose from the available planets." << endl;
+        cin >> destination;
+
+        for (int i = 0; i < destination.length(); i++) {
+        destination[i] = tolower(destination[i]); // Convert the rest of the letters to lowercase
+        }
+        destination[0] = toupper(destination[0]); // Capitalize the first letter
+    }
+
+    while (destination == "Earth") {
         cout << "You are already on Earth! Please choose a different destination." << endl;
         return 0;
+        
+        cin >> destination;
+
+        for (int i = 0; i < destination.length(); i++) {
+        destination[i] = tolower(destination[i]); // Convert the rest of the letters to lowercase
+        }
+        destination[0] = toupper(destination[0]); // Capitalize the first letter
     }
 
     if (destination == "Mercury" || destination == "Venus" || destination == "Mars"|| destination == "Jupiter"
       || destination == "Saturn" || destination == "Neptune" || destination == "Uranus") {
         cout << "You have chosen to travel to " << destination << "!" << endl;
     } 
-    else {
-        cout << "Sorry, we do not have information on that destination. Please choose from the available planets." << endl;
-        return 0;
-    }
 
     cout << "Calculating route from " << origin << " to " << destination << "..." << endl;
 
@@ -146,18 +160,31 @@ int main() {
     cout << "Calculating fuel needed for the trip..." << endl;
 
     double fuelNeeded = calculateFuelNeeded(distance);
-    cout << "Fuel needed for the trip: " << fuelNeeded << " units." << endl;
+    cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units." << endl;
 
-    if (fuelNeeded > fuel) {
+    while (fuelNeeded > fuel) {
         cout << "You do not have enough fuel for this trip. Please choose another destination." << endl;
+        double distance = -1; // Initialize distance to an invalid value
+        distance = calculateDistance(origin, destination);
+
+        if (distance < 0) {
+        cout << "Unable to calculate distance." << endl;
         return 0;
+        }
+
+        cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers." << endl;
+
+        cout << "Calculating fuel needed for the trip..." << endl;
+
+        double fuelNeeded = calculateFuelNeeded(distance);
+        cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units." << endl;
+        
     }
-    else {
-        fuel -= fuelNeeded; // Update fuel after the trip
-        fuelPercentage = (fuel / MAX_FUEL) * 100; // Update fuel percentage
-        cout << "You have successfully traveled to " << destination << "!" << endl;
-        cout << "Remaining fuel: " << fuelPercentage << "%." << endl;
-    }
+    
+    fuel -= fuelNeeded; // Update fuel after the trip
+    fuelPercentage = (fuel / MAX_FUEL) * 100; // Update fuel percentage
+    cout << "You have successfully traveled to " << destination << "!" << endl;
+    cout << "Remaining fuel: " << fuelPercentage << "%." << endl;
     
     return 0;
 }
