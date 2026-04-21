@@ -14,10 +14,12 @@ I don't know if I want to add an a cost system or not but if I do I would keep a
 #include <string>
 #include <iomanip>
 #include <fstream>
+#include <cctype>
 
 using namespace std;
 
 void printPlanets(); // Function prototype to print planet names from a file
+double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planets
 
 struct Route {
      string from;
@@ -62,6 +64,29 @@ int main() {
 
     cout << "You are currently on " << origin << ". Where would you like to go?" << endl;
     getline(cin, destination);
+
+
+    destination[0] = toupper(destination[0]); // Capitalize the first letter of the destination
+
+    for (int i = 0; i < destination.length(); i++) {
+        destination[i] = tolower(destination[i]); // Convert the rest of the letters to lowercase
+    }
+
+    if (destination == "Earth") {
+        cout << "You are already on Earth! Please choose a different destination." << endl;
+        return 0;
+    }
+
+    if (destination == "Mercury" || destination == "Venus" || destination == "Mars"|| destination == "Jupiter"
+      || destination == "Saturn" || destination == "Neptune" || destination == "Uranus") {
+        cout << "You have chosen to travel to " << destination << "!" << endl;
+    } 
+    else {
+        cout << "Sorry, we do not have information on that destination. Please choose from the available planets." << endl;
+        return 0;
+    }
+
+    cout << "Calculating route from " << origin << " to " << destination << "..." << endl;
     
     return 0;
 }
@@ -85,3 +110,5 @@ void printPlanets() {
 
     infile.close();
 }
+
+//calculate distance between planets
