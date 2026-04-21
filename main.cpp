@@ -22,6 +22,7 @@ void printPlanets(); // Function prototype to print planet names from a file
 void loadRoutes(); // Function prototype to load routes from a file
 double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planets
 double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
+double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
 
 struct Route {
      string from;
@@ -53,7 +54,7 @@ double FLAT_RATE_PAY_HOUR = 200.0; // Flat pay rate for each hour of travel
 
 double MAX_FUEL = 1500.0; // Maximum fuel capacity
 double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
-int rateOfSpeed = 100; // Speed of the spaceship in million kilometers per day
+int rateOfSpeed = 15; // Speed of the spaceship in million kilometers per day
 
 int main() {
     cout << fixed << setprecision(2); // Set decimal precision for output
@@ -244,4 +245,10 @@ double calculateDistance(const string& from, const string& to) {
 double calculateFuelNeeded(double distance) {
     double fuelNeeded = distance * FLAT_FUEL_CONSUMPTION_RATE;
     return fuelNeeded;
+}
+
+//calculate travel time for a trip
+double calculateTravelTime(double distance) {
+    double timeNeeded = distance / rateOfSpeed; // Time in days
+    return timeNeeded;
 }
