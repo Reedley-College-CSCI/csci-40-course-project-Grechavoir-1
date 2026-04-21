@@ -19,12 +19,22 @@ using namespace std;
 
 void printPlanets(); // Function prototype to print planet names from a file
 
+struct Route {
+     string from;
+     string to; 
+     double distance; // In millions of kilometers
+};
+
+const int MAX_ROUTES = 100; // Maximum number of routes
+Route routes[MAX_ROUTES]; // Array to store routes
+
+
 double MAX_FUEL = 1000.0; // Maximum fuel capacity
 
 int main() {
-
     cout << fixed << setprecision(2); // Set decimal precision for output
 
+    int routeCount = 0; // Variable to keep track of the number of routes
     double fuel = 1000.0; // Initial fuel
     double fuelPercentage = (fuel / MAX_FUEL) * 100;
 
