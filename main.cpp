@@ -17,6 +17,8 @@ I don't know if I want to add an a cost system or not but if I do I would keep a
 
 using namespace std;
 
+void printPlanets(); // Function prototype to print planet names from a file
+
 double MAX_FUEL = 1000.0; // Maximum fuel capacity
 
 int main() {
@@ -43,5 +45,28 @@ int main() {
     cout << "You are now in your spaceship, ready to explore the universe!" << endl;
     cout << "Your spaceship is at " << fuelPercentage << "% fuel." << endl;
 
+    cout << "\nWhere would you like to go?" << endl;
+    printPlanets(); // Call the function to print planet names
+
     return 0;
+}
+
+//Print planet names
+void printPlanets() {
+    fstream infile("planets.txt");
+
+    if (!infile) {
+        cout << "Error: Could not open file\n";
+        return;
+    }
+
+    string planet;
+
+    cout << "\nAvailable Planets:\n";
+
+    while (getline(infile, planet)) {
+        cout << "*** " << planet << " ###" <<endl;
+    }
+
+    infile.close();
 }
