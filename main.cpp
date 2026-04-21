@@ -18,18 +18,31 @@ I don't know if I want to add an a cost system or not but if I do I would keep a
 
 using namespace std;
 
+double MAX_FUEL = 1000.0; // Maximum fuel capacity
+
 int main() {
+
+    cout << fixed << setprecision(2); // Set decimal precision for output
+
+    double fuel = 1000.0; // Initial fuel
+    double fuelPercentage = (fuel / MAX_FUEL) * 100;
+
     cout << "Hello..." << endl << "Enter your name:" << endl;
 
     string charName;
     getline(cin, charName);
 
-    cout << "Welcome to the Space Exploration Journey!" << endl;
+    cout << "\nWelcome to the Space Exploration Journey!" << endl;
     cout << "You have been drafted to venture the cosmos and"
          << " be a hero for your home planet!" << endl;
     cout << "Do not fear the darkness of space, but look forward to the"
          << " nearest star!" << endl;
     cout << "Godspeed " << charName << "!" << endl;
+
+     
+    cout << "...Loading...\n...loading...\n...loading...\n" << endl;
+    cout << "You are now in your spaceship, ready to explore the universe!" << endl;
+    cout << "Your spaceship is at " << fuelPercentage << "% fuel." << endl;
 
     return 0;
 }
