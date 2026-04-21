@@ -51,14 +51,14 @@ double MAX_TOTAL_HOURS = 17520; // Maximum total hours for 2 year mission
 double income = 0.0; // Variable to track income
 double FLAT_RATE_PAY_HOUR = 200.0; // Flat pay rate for each hour of travel
 
-double MAX_FUEL = 2500.0; // Maximum fuel capacity
+double MAX_FUEL = 1500.0; // Maximum fuel capacity
 double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
 int rateOfSpeed = 100; // Speed of the spaceship in million kilometers per day
 
 int main() {
     cout << fixed << setprecision(2); // Set decimal precision for output
 
-    double fuel = 2500.0; // Initial fuel
+    double fuel = 1500.0; // Initial fuel
     double fuelPercentage = (fuel / MAX_FUEL) * 100;
 
     cout << "Hello..." << endl << "Please enter your name:" << endl;
@@ -158,13 +158,13 @@ int main() {
     cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers." << endl;
 
     cout << "Calculating fuel needed for the trip..." << endl;
-
     double fuelNeeded = calculateFuelNeeded(distance);
     cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units." << endl;
 
     while (fuelNeeded > fuel) {
         cout << "You do not have enough fuel for this trip. Please choose another destination." << endl;
-        double distance = -1; // Initialize distance to an invalid value
+        cin >> destination;
+
         distance = calculateDistance(origin, destination);
 
         if (distance < 0) {
@@ -176,7 +176,8 @@ int main() {
 
         cout << "Calculating fuel needed for the trip..." << endl;
 
-        double fuelNeeded = calculateFuelNeeded(distance);
+        fuelNeeded = calculateFuelNeeded(distance);
+        
         cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units." << endl;
         
     }
