@@ -132,7 +132,6 @@ int main() {
 
     while (destination == "Earth") {
         cout << "You are already on Earth! Please choose a different destination." << endl;
-        return 0;
         
         cin >> destination;
 
@@ -165,6 +164,11 @@ int main() {
     while (fuelNeeded > fuel) {
         cout << "You do not have enough fuel for this trip. Please choose another destination." << endl;
         cin >> destination;
+
+            for (int i = 0; i < destination.length(); i++) {
+                destination[i] = tolower(destination[i]);
+            }
+        destination[0] = toupper(destination[0]);
 
         distance = calculateDistance(origin, destination);
 
