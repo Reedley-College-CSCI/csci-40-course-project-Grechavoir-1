@@ -20,8 +20,6 @@ using namespace std;
 
 const int MAX_MATERIALS = 100; // Maximum number of materials
 const int MAX_ROUTES = 100; // Maximum number of routes
-
-int routeCount = 0; // Variable to keep track of the number of routes
 const int MAX_PLANETS = 8; // Maximum number of planets
 
 class SpaceTravel {
@@ -39,13 +37,15 @@ class SpaceTravel {
         int hoursTraveled = 0; // Variable to track the number of hours traveled
         double MAX_FUEL = 1500.0; // Maximum fuel capacity
         double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
-        int rateOfSpeed = 15000000; // Speed of the spaceship in kilometers per day
+        int rateOfSpeed = (15000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
         int materialCount = 0; // Variable to keep track of the number of materials
         double kilogramToTon = 907.18; // Conversion factor from kilograms to tons
         double MAX_CARGO_WEIGHT = 50; // Maximum cargo weight in tons
         double MAX_TOTAL_HOURS = 17520; // Maximum total hours for 2 year mission
         double income = 0.0; // Variable to track income
         double FLAT_RATE_PAY_HOUR = 200.0; // Flat pay rate for each hour of travel
+        double cargoWeight = 0.0; // initial cargo weight
+        int routeCount = 0; // Variable to keep track of the number of routes
     
     public:
         void printPlanets(); // Function prototype to print planet names from a file
@@ -56,6 +56,7 @@ class SpaceTravel {
         double calculateFuelPercentage(double fuel); // Function prototype to calculate fuel percetage in spaceship
         Route routes[MAX_ROUTES]; // Array to store routes
         string materials[MAX_MATERIALS]; // Array to store materials
+        Material cargo[MAX_MATERIALS]; // Array to track current cargo on ship
 };
 
 // Open the routes.txt file and read the routes into the routes array
@@ -127,6 +128,35 @@ double SpaceTravel::calculateTravelTime(double distance) {
     return timeNeeded;
 }
 
+void helloWorld();
+void introMessage(const string& charName);
+string capitalizeWord(string text);
+
+void helloWorld() {
+    cout << "Hello..." << endl << "Please enter your name:" << endl;
+}
+
+void introMessage(const string& charName) {
+    cout << "\nWelcome to the Space Exploration Journey!" << endl;
+    cout << "You have been drafted to venture the cosmos and"
+         << " be a hero for your home planet!" << endl;
+    
+    cout << "\n...Loading...\n...loading...\n...loading...\n" << endl;
+    cout << "You are now in your spaceship, ready to explore the universe!" << endl;
+    cout << "Your spaceship is fully loaded with fuel and ready to go." << endl;
+    cout << "\n\nDo not fear the darkness of space, but look forward to the"
+        << " nearest star!" << endl;
+    cout << "Godspeed " << charName << "!" << endl;
+}
+
+string capitalizeWord(string text){
+    for (int i = 0; i < text.length(); i++) {
+        text[i] = tolower(text[i]); // Convert the letters to lowercase
+    }
+    text[0] = toupper(text[0]); // Capitalize the first letter
+    
+    return text;
+}
 
 int main() {
     cout << fixed << setprecision(2); // Set decimal precision for output
@@ -136,7 +166,7 @@ int main() {
 
     double tank = journey.calculateFuelPercentage(fuel);
 
-    cout << "Hello..." << endl << "Please enter your name:" << endl;
+    helloWorld();
 
     string charName;
     getline(cin, charName);
@@ -146,35 +176,21 @@ int main() {
     string ready;
     cin >> ready;
 
-    for (int i = 0; i < ready.length(); i++) {
-        ready[i] = tolower(ready[i]); // Convert the rest of the letters to lowercase
-    }
+    ready = capitalizeWord(ready);
 
-    while (ready != "yes" && ready != "no") {
+    while (ready != "Yes" && ready != "No") {
         cout << "Invalid input. Please enter 'yes' or 'no':" << endl;
         cin >> ready;
 
-        for (int i = 0; i < ready.length(); i++) {
-            ready[i] = tolower(ready[i]); // Convert the rest of the letters to lowercase
-        }
+        ready = capitalizeWord(ready);
     }
 
-    if (ready != "yes") {
+    if (ready != "Yes") {
         cout << "Take your time to prepare. Come back when you are ready!" << endl;
         return 0;
     }
 
-    cout << "\nWelcome to the Space Exploration Journey!" << endl;
-    cout << "You have been drafted to venture the cosmos and"
-         << " be a hero for your home planet!" << endl;
-    
-    cout << "\n...Loading...\n...loading...\n...loading...\n" << endl;
-    cout << "You are now in your spaceship, ready to explore the universe!" << endl;
-    cout << "Your spaceship is at " << tank << "% fuel." << endl;
-    cout << "\n\nDo not fear the darkness of space, but look forward to the"
-        << " nearest star!" << endl;
-    cout << "Godspeed " << charName << "!" << endl;
-     
+    introMessage(charName);
 
     journey.loadRoutes(); // Call the function to load routes from the file
 
@@ -188,31 +204,21 @@ int main() {
     cout << "You are currently on " << origin << ". Where would you like to go?\n";
     cin >> destination;
 
-     for (int i = 0; i < destination.length(); i++) {
-        destination[i] = tolower(destination[i]); // Convert the letters to lowercase
-    }
-    destination[0] = toupper(destination[0]); // Capitalize the first letter
+    destination = capitalizeWord(destination);
 
     while (destination != "Mercury" && destination != "Venus" && destination != "Earth" && destination != "Mars" && destination != "Jupiter"
       && destination != "Saturn" && destination != "Neptune" && destination != "Uranus") {
         cout << "Invalid destination. Please choose from the available planets." << endl;
         cin >> destination;
 
-        for (int i = 0; i < destination.length(); i++) {
-        destination[i] = tolower(destination[i]); // Convert the rest of the letters to lowercase
-    }
-        destination[0] = toupper(destination[0]); // Capitalize the first letter
+        destination = capitalizeWord(destination);
     }
 
     while (destination == "Earth") {
         cout << "You are already on Earth! Please choose a different destination." << endl;
-        
         cin >> destination;
 
-        for (int i = 0; i < destination.length(); i++) {
-        destination[i] = tolower(destination[i]); // Convert the rest of the letters to lowercase
-        }
-        destination[0] = toupper(destination[0]); // Capitalize the first letter
+        destination = capitalizeWord(destination);
     }
 
     if (destination == "Mercury" || destination == "Venus" || destination == "Mars"|| destination == "Jupiter"
