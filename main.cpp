@@ -303,12 +303,47 @@ int main() {
         destination = capitalizeWord(destination);
     }
 
+    string confirm;
+
     if (destination == "Mercury" || destination == "Venus" || destination == "Mars"|| destination == "Jupiter"
-      || destination == "Saturn" || destination == "Neptune" || destination == "Uranus") {
+    || destination == "Saturn" || destination == "Neptune" || destination == "Uranus") {
         cout << "You have chosen to travel to " << destination << "!" << endl;
     } 
     
     journey.showPlanetMaterials(destination);
+
+    cout << "Do you wish to choose " << destination << " as your destination? (type confirm to begin)\n";
+    cin >> confirm;
+    confirm = capitalizeWord(confirm);
+
+    if (confirm != "Confirm") {
+        cout << "Where would you like to go to instead?\n";
+        cin >> destination;
+
+        destination = capitalizeWord(destination);
+
+        while (destination != "Mercury" && destination != "Venus" && destination != "Earth" && destination != "Mars" && destination != "Jupiter"
+            && destination != "Saturn" && destination != "Neptune" && destination != "Uranus") {
+            cout << "Invalid destination. Please choose from the available planets." << endl;
+            cin >> destination;
+
+            destination = capitalizeWord(destination);
+        }
+
+        while (destination == "Earth") {
+            cout << "You are already on Earth! Please choose a different destination." << endl;
+            cin >> destination;
+
+            destination = capitalizeWord(destination);
+        }
+
+        journey.showPlanetMaterials(destination);
+
+    cout << "Do you wish to choose " << destination << " as your destination? (type confirm to begin)\n";
+    cin >> confirm;
+    confirm = capitalizeWord(confirm);
+    }
+    
 
     cout << "Calculating route from " << origin << " to " << destination << "..." << endl;
 
