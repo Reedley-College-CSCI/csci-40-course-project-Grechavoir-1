@@ -50,12 +50,14 @@ class SpaceTravel {
     public:
         void printPlanets(); // Function prototype to print planet names from a file
         void loadRoutes(); // Function prototype to load routes from a file
+        void loadMaterials(); // Function prototype to load materials from a file
+        void printMaterials(); // Function prototype to print materials from the file
         double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planets
         double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
         double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
         double calculateFuelPercentage(double fuel); // Function prototype to calculate fuel percetage in spaceship
         Route routes[MAX_ROUTES]; // Array to store routes
-        string materials[MAX_MATERIALS]; // Array to store materials
+        Material materials[MAX_MATERIALS]; // Array to store materials
         Material cargo[MAX_MATERIALS]; // Array to track current cargo on ship
 };
 
@@ -96,6 +98,35 @@ void SpaceTravel::printPlanets() {
     }
 
     infile.close();
+}
+
+//Load materials
+void SpaceTravel::loadMaterials() {
+    fstream infile("materials.txt"); // Open the file for reading
+
+    if (!infile) {
+        cout << "Error: Could not open materials.txt\n";
+        return;
+    } // Check if the file was opened successfully
+
+    while (materialCount < MAX_MATERIALS && infile >> materials[materialCount].name >> materials[materialCount].amount >> materials[materialCount].cost) {
+        materialCount++;
+    }
+    
+    infile.close();
+}
+
+//Print materials
+void SpaceTravel::printMaterials() {
+    cout << "\nAvailable Materials:\n";
+
+    for (int i = 0; i < materialCount; i++) {
+        cout << "** " << materials[i].name << " **\n"
+            << " Amount: " << materials[i].amount
+            << " tons"
+            << " Price: $" << materials[i].cost
+            << endl;
+    }
 }
 
 //calculate distance between planets
@@ -162,8 +193,10 @@ int main() {
     cout << fixed << setprecision(2); // Set decimal precision for output
     SpaceTravel journey;
 
+    journey.loadMaterials(); // Call the function to load materials from the file
+    journey.loadRoutes(); // Call the function to load routes from the file
+    
     double fuel = 1500.0; // Initial fuel
-
     double tank = journey.calculateFuelPercentage(fuel);
 
     helloWorld();
@@ -191,8 +224,6 @@ int main() {
     }
 
     introMessage(charName);
-
-    journey.loadRoutes(); // Call the function to load routes from the file
 
     cout << "Here are the available planets you can travel to:" << endl;
     journey.printPlanets(); // Call the function to print planet names
