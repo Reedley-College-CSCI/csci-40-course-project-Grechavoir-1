@@ -36,6 +36,10 @@ class SpaceTravel {
             double amount; // Amount of material (tons)
             double cost; // Cost per unit
         };
+        struct PlanetMaterial {
+            string planet; // Name of planet
+            string material; // Element or resource on planet
+        };
         int hoursTraveled = 0; // Variable to track the number of hours traveled
         double MAX_FUEL = 1500.0; // Maximum fuel capacity
         double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
@@ -48,12 +52,14 @@ class SpaceTravel {
         double FLAT_RATE_PAY_HOUR = 200.0; // Flat pay rate for each hour of travel
         double cargoWeight = 0.0; // initial cargo weight
         int routeCount = 0; // Variable to keep track of the number of routes
+        int planetMaterialCount = 0; // Variable to keep track of how many materials are on a planet
     
     public:
         void printPlanets(); // Function prototype to print planet names from a file
         void loadRoutes(); // Function prototype to load routes from a file
         void loadMaterials(); // Function prototype to load materials from a file
         void printMaterials(); // Function prototype to print materials from the file
+        void loadPlanetMaterials(); // Function prototype to load planet_materials.txt
         double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planets
         double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
         double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
@@ -61,6 +67,7 @@ class SpaceTravel {
         Route routes[MAX_ROUTES]; // Array to store routes
         Material materials[MAX_MATERIALS]; // Array to store materials
         Material cargo[MAX_MATERIALS]; // Array to track current cargo on ship
+        PlanetMaterial planetMaterial[MAX_MATERIALS]; // Array to store planet materials
 };
 
 // Open the routes.txt file and read the routes into the routes array
@@ -129,6 +136,22 @@ void SpaceTravel::printMaterials() {
             << " Price: $" << materials[i].cost
             << endl;
     }
+}
+
+// Open the routes.txt file and read the routes into the routes array
+void SpaceTravel::loadPlanetMaterials() {
+    fstream infile("planet_materials.txt"); // Open the file for reading
+
+    if (!infile) {
+        cout << "Error: Could not open planet_materials.txt\n";
+        return;
+    } // Check if the file was opened successfully
+
+    while (planetMaterialCount < MAX_ROUTES && infile >> planetMaterial[planetMaterialCount].planet >> planetMaterial[planetMaterialCount].material) {
+        planetMaterialCount++;
+    }
+    
+    infile.close();
 }
 
 //calculate distance between planets
