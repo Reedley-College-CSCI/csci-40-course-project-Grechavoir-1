@@ -60,6 +60,7 @@ class SpaceTravel {
         void loadMaterials(); // Function prototype to load materials from a file
         void printMaterials(); // Function prototype to print materials from the file
         void loadPlanetMaterials(); // Function prototype to load planet_materials.txt
+        void showPlanetMaterials(const string& planet);
         double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planets
         double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
         double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
@@ -154,6 +155,30 @@ void SpaceTravel::loadPlanetMaterials() {
     infile.close();
 }
 
+//Show materials at target planet
+void SpaceTravel::showPlanetMaterials(const string& planet){
+    cout << "\nPossible materials found on "
+        << planet
+        << ":\n";
+
+    bool found = false;
+
+    for (int i = 0; i < planetMaterialCount; i++) {
+        if (planetMaterial[i].planet == planet) {
+
+            cout << "- "
+                << planetMaterial[i].material
+                << endl;
+
+            found = true;
+        }
+    }
+
+    if (!found) {
+        cout << "No materials found.\n";
+    }
+}
+
 //calculate distance between planets
 double SpaceTravel::calculateDistance(const string& from, const string& to) {
     for (int i = 0; i < routeCount; i++) {
@@ -220,6 +245,7 @@ int main() {
 
     journey.loadMaterials(); // Call the function to load materials from the file
     journey.loadRoutes(); // Call the function to load routes from the file
+    journey.loadPlanetMaterials();
     
     double fuel = 1500.0; // Initial fuel
     double tank = journey.calculateFuelPercentage(fuel);
@@ -281,6 +307,8 @@ int main() {
       || destination == "Saturn" || destination == "Neptune" || destination == "Uranus") {
         cout << "You have chosen to travel to " << destination << "!" << endl;
     } 
+    
+    journey.showPlanetMaterials(destination);
 
     cout << "Calculating route from " << origin << " to " << destination << "..." << endl;
 
