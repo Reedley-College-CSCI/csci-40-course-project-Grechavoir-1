@@ -15,6 +15,8 @@ I don't know if I want to add an a cost system or not but if I do I would keep a
 #include <iomanip>
 #include <fstream>
 #include <cctype>
+#include <cstdlib>
+#include <ctime>
 
 using namespace std;
 
@@ -39,7 +41,7 @@ class SpaceTravel {
         double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
         int rateOfSpeed = (15000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
         int materialCount = 0; // Variable to keep track of the number of materials
-        double kilogramToTon = 907.18; // Conversion factor from kilograms to tons
+        double tonToKilogram = 907.18; // Conversion factor from kilograms to tons
         double MAX_CARGO_WEIGHT = 50; // Maximum cargo weight in tons
         double MAX_TOTAL_HOURS = 17520; // Maximum total hours for 2 year mission
         double income = 0.0; // Variable to track income

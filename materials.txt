@@ -11,3 +11,4 @@ Ammonia 0 24.00
 Nitrogen 0 0.50
 Phosphorus 0 150.00
 Nickel 0 19.00
+Aluminum 0 3.5
