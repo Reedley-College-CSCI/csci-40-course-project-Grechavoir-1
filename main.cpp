@@ -43,7 +43,7 @@ class SpaceTravel {
         int hoursTraveled = 0; // Variable to track the number of hours traveled
         double MAX_FUEL = 1500.0; // Maximum fuel capacity
         double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
-        int rateOfSpeed = (15000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
+        double rateOfSpeed = (15000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
         int materialCount = 0; // Variable to keep track of the number of materials
         double tonToKilogram = 907.18; // Conversion factor from kilograms to tons
         double MAX_CARGO_WEIGHT = 50; // Maximum cargo weight in tons
@@ -53,6 +53,7 @@ class SpaceTravel {
         double cargoWeight = 0.0; // initial cargo weight
         int routeCount = 0; // Variable to keep track of the number of routes
         int planetMaterialCount = 0; // Variable to keep track of how many materials are on a planet
+        int cargoCount = 0; // Variable to keep track of
     
     public:
         void printPlanets(); // Function prototype to print planet names from a file
@@ -61,10 +62,14 @@ class SpaceTravel {
         void printMaterials(); // Function prototype to print materials from the file
         void loadPlanetMaterials(); // Function prototype to load planet_materials.txt
         void showPlanetMaterials(const string& planet);
+        void generatePlanetPackages(const string& planet);
         double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planets
         double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
         double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
         double calculateFuelPercentage(double fuel); // Function prototype to calculate fuel percetage in spaceship
+        double getMaterialPrice(const string& materialName);
+        double calculateCargoValue();
+        double flatMaterialIncrease(const string& planet);
         Route routes[MAX_ROUTES]; // Array to store routes
         Material materials[MAX_MATERIALS]; // Array to store materials
         Material cargo[MAX_MATERIALS]; // Array to track current cargo on ship
@@ -148,7 +153,7 @@ void SpaceTravel::loadPlanetMaterials() {
         return;
     } // Check if the file was opened successfully
 
-    while (planetMaterialCount < MAX_ROUTES && infile >> planetMaterial[planetMaterialCount].planet >> planetMaterial[planetMaterialCount].material) {
+    while (planetMaterialCount < MAX_MATERIALS && infile >> planetMaterial[planetMaterialCount].planet >> planetMaterial[planetMaterialCount].material) {
         planetMaterialCount++;
     }
     
@@ -176,6 +181,97 @@ void SpaceTravel::showPlanetMaterials(const string& planet){
 
     if (!found) {
         cout << "No materials found.\n";
+    }
+}
+
+//Make the cargo
+void SpaceTravel::generatePlanetPackages(const string& planet) {
+
+    cout << "\nPre-packed cargo available on "
+         << planet
+         << ":\n";
+
+    cargoCount = 0;
+
+    for (int i = 0; i < planetMaterialCount; i++) {
+
+        if (planetMaterial[i].planet == planet) {
+
+            int kilograms = 100 + rand() % 901;
+
+            cargo[cargoCount].name = planetMaterial[i].material;
+
+            cargo[cargoCount].amount = kilograms;
+
+            cargo[cargoCount].cost = getMaterialPrice(planetMaterial[i].material);
+                
+            cout << "- " << cargo[cargoCount].name << ": " 
+                << cargo[cargoCount].amount + (flatMaterialIncrease(planet) * cargo[cargoCount].amount)
+                << " kg";
+
+            cargoCount++;
+        }
+    }
+}
+
+//Search for material price
+double SpaceTravel::getMaterialPrice(const string& materialName) {
+
+    for (int i = 0; i < materialCount; i++) {
+
+        if (materials[i].name == materialName) {
+            return materials[i].cost;
+        }
+    }
+
+    return 0;
+}
+
+//Calculating cargo value
+double SpaceTravel::calculateCargoValue() {
+
+    double total = 0;
+
+    for (int i = 0; i < cargoCount; i++) {
+        total += cargo[i].amount * cargo[i].cost;
+    }
+
+    return total;
+}
+
+//Give the planets further from Earth an increase to their cargo size
+double SpaceTravel::flatMaterialIncrease(const string& planet) {
+    if (planet == "Mercury") {
+        return 0.022; //(Distance from Earth to Mercury / Earth to Venus / 100) this applies to all of the other with Veus
+                      //Venus as the standard
+    }
+
+    else if (planet == "Venus") {
+        return 0.010;
+    }
+
+    else if (planet == "Mars") {
+        return 0.019;
+    }
+
+    else if (planet == "Jupiter") {
+        return 0.153;
+    }
+
+    else if (planet == "Saturn") {
+        return 0.311;
+    }
+
+    else if (planet == "Uranus") {
+        return 0.664;
+    }
+
+    else if (planet == "Neptune") {
+        return 1.061;
+    }
+
+    else {
+        return 0;
     }
 }
 
@@ -240,6 +336,7 @@ string capitalizeWord(string text){
 }
 
 int main() {
+    srand(time(0));
     cout << fixed << setprecision(2); // Set decimal precision for output
     SpaceTravel journey;
 
@@ -316,7 +413,7 @@ int main() {
     cin >> confirm;
     confirm = capitalizeWord(confirm);
 
-    if (confirm != "Confirm") {
+    while (confirm != "Confirm") {
         cout << "Where would you like to go to instead?\n";
         cin >> destination;
 
@@ -324,14 +421,14 @@ int main() {
 
         while (destination != "Mercury" && destination != "Venus" && destination != "Earth" && destination != "Mars" && destination != "Jupiter"
             && destination != "Saturn" && destination != "Neptune" && destination != "Uranus") {
-            cout << "Invalid destination. Please choose from the available planets." << endl;
+            cout << "Invalid destination. Please choose from the available planets.\n";
             cin >> destination;
 
             destination = capitalizeWord(destination);
         }
 
         while (destination == "Earth") {
-            cout << "You are already on Earth! Please choose a different destination." << endl;
+            cout << "You are already on Earth! Please choose a different destination.\n";
             cin >> destination;
 
             destination = capitalizeWord(destination);
@@ -345,24 +442,24 @@ int main() {
     }
     
 
-    cout << "Calculating route from " << origin << " to " << destination << "..." << endl;
+    cout << "Calculating route from " << origin << " to " << destination << "...\n";
 
     double distance = -1; // Initialize distance to an invalid value
     distance = journey.calculateDistance(origin, destination);
 
     if (distance < 0) {
-        cout << "Unable to calculate distance." << endl;
+        cout << "Unable to calculate distance.\n";
         return 0;
     }
 
-    cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers." << endl;
+    cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
 
-    cout << "Calculating fuel needed for the trip..." << endl;
+    cout << "Calculating fuel needed for the trip...\n";
     double fuelNeeded = journey.calculateFuelNeeded(distance);
-    cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units." << endl;
+    cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
 
     while (fuelNeeded > fuel) {
-        cout << "You do not have enough fuel for this trip. Please choose another destination." << endl;
+        cout << "You do not have enough fuel for this trip. Please choose another destination.\n";
 
         cin >> destination;
 
@@ -373,20 +470,23 @@ int main() {
         return 0;
         }
 
-        cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers." << endl;
+        cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
     
-        cout << "Calculating fuel needed for the trip..." << endl;
+        cout << "Calculating fuel needed for the trip...\n";
         fuelNeeded = journey.calculateFuelNeeded(distance);
 
-        cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units." << endl;
+        cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
         
     }
     
     fuel -= fuelNeeded; // Update fuel after the trip
     tank = journey.calculateFuelPercentage(fuel);
-    cout << "You have successfully traveled to " << destination << "!" << endl;
-    cout << "Remaining fuel: " << tank << "%." << endl;
+    cout << "You have successfully traveled to " << destination << "!\n";
+    cout << "Remaining fuel: " << tank << "%.\n";
 
+    journey.generatePlanetPackages(destination);
+
+    cout << "\nTotal cargo value: $" << journey.calculateCargoValue() << endl;
 
     return 0;
 }

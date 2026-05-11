@@ -1,4 +1,4 @@
-Silica 0 1.73
+Silicon 0 3.2
 Magnesium 0 2.40
 Sulfur 0 4.50
 Potassium 0 400.00
