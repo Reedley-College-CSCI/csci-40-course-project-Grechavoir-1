@@ -40,25 +40,35 @@ class SpaceTravel {
             string planet; // Name of planet
             string material; // Element or resource on planet
         };
-        int hoursTraveled = 0; // Variable to track the number of hours traveled
+        struct Journey {
+            string from;
+            string to;
+            double distance;
+            double totalHours;
+            double cargo;
+        };
         double MAX_FUEL = 1500.0; // Maximum fuel capacity
         double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
         double rateOfSpeed = (1500000.0 / 24.0); // Speed of the spaceship in kilometers per hour
         int materialCount = 0; // Variable to keep track of the number of materials
         double tonToKilogram = 907.18; // Conversion factor from kilograms to tons
         double MAX_CARGO_WEIGHT = 50; // Maximum cargo weight in tons
-        double MAX_TOTAL_HOURS = 17520; // Maximum total hours for 2 year mission
-        double income = 0.0; // Variable to track income
+        double MAX_TOTAL_HOURS = 175200.0; // Maximum total hours for 20 year mission
+        double totalDistanceTraveled = 0.0;
+        double totalHoursAway = 0.0;
         double FLAT_RATE_PAY_HOUR = 200.0; // Flat pay rate for each hour of travel
         double cargoWeight = 0.0; // initial cargo weight
         int routeCount = 0; // Variable to keep track of the number of routes
         int planetMaterialCount = 0; // Variable to keep track of how many materials are on a planet
-        int cargoCount = 0; // Variable to keep track of
+        int cargoCount = 0; // Variable to keep track of total cargo
+        int trips = 0; // Variable to keep track of how many trips have been done so far
         double refuelSpeed = 5.0; // Variable for how many units per hour are refueled in the ship
+        double totalCargo = 0.0;
         Route routes[MAX_ROUTES]; // Array to store routes
         Material materials[MAX_MATERIALS]; // Array to store materials
         Material cargo[MAX_MATERIALS]; // Array to track current cargo on ship
         PlanetMaterial planetMaterial[MAX_MATERIALS]; // Array to store planet materials
+        Journey travelLog[MAX_ROUTES];
     
     public:
         void printPlanets(); // Function prototype to print planet names from a file
@@ -77,6 +87,11 @@ class SpaceTravel {
         double calculateCargoValue(); // Function prototype to determine the total cost of a cargo package
         double flatMaterialIncrease(const string& planet); // Function prototype to give different planets larger cargo
         double timeToRefuel(double fuel); // Function prototype to both refuel and keep track of the time it takes
+        // Function to keep a running total of stats
+        void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
+        void printStats();
+        void printLog();
+        
 };
 
 // Open the routes.txt file and read the routes into the routes array
@@ -92,29 +107,6 @@ void SpaceTravel::loadRoutes() {
         routeCount++;
     }
     
-    infile.close();
-}
-
-//Print planet names
-void SpaceTravel::printPlanets() {
-    fstream infile("planets.txt"); // Open the file for reading
-
-    int count = 0; // Variable to keep track of the number of planets
-
-    if (!infile) {
-        cout << "Error: Could not open planets.txt\n";
-        return;
-    } // Check if the file was opened successfully
-
-    string planet;
-
-    cout << "\nAvailable Planets:\n";
-
-    while (count < MAX_PLANETS && getline(infile, planet)) {
-        cout << "- " << planet << endl;
-        count++;
-    }
-
     infile.close();
 }
 
@@ -148,6 +140,39 @@ void SpaceTravel::loadPlanetMaterials() {
     }
     
     infile.close(); // closed text file
+}
+
+void SpaceTravel::updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo) {
+    if (trips < MAX_ROUTES) {
+        double tripTotalHours = travelTime + refuelTime;
+
+        travelLog[trips].from = from;
+        travelLog[trips].to = to;
+        travelLog[trips].distance = distance;
+        travelLog[trips].totalHours = tripTotalHours;
+        travelLog[trips].cargo = cargo;
+
+        trips++;
+
+        totalDistanceTraveled += distance;
+        totalHoursAway += tripTotalHours;
+        totalCargo += cargo;
+    }
+}
+
+void SpaceTravel::printStats() {
+    cout << fixed << setprecision(2);
+    cout << "$" << totalCargo << " " << totalDistanceTraveled << " " << (totalHoursAway / 24.0) << " days\n";
+}
+
+void SpaceTravel::printLog() {
+    for (int i = 0; i < trips; i++) {
+        cout << "\nTrip #" << i + 1 << " stats\n";
+        cout << "You went from " << travelLog[i].from << " to " << travelLog[i].to << "\n";
+        cout << "You this trip was " << travelLog[i].distance << " million kilometers. "
+         << "and it took " << (travelLog[i].totalHours / 24.0) << " days.\n";
+        cout << "The cargo you recieved from this trip was worth $" << travelLog[i].cargo << "\n";
+    }
 }
 
 //Print materials
@@ -196,7 +221,7 @@ void SpaceTravel::generatePlanetPackages(const string& planet) {
 
             cargo[cargoCount].name = planetMaterial[i].material;
 
-            cargo[cargoCount].amount = kilograms + (flatMaterialIncrease(planet) * cargo[cargoCount].amount);
+            cargo[cargoCount].amount = kilograms * (1 + flatMaterialIncrease(planet));
 
             cargo[cargoCount].cost = getMaterialPrice(planetMaterial[i].material);
                 
@@ -205,6 +230,8 @@ void SpaceTravel::generatePlanetPackages(const string& planet) {
             cargoCount++;
         }
     }
+
+    cout << "\nTotal cargo value: $" << calculateCargoValue() << endl;
 }
 
 //Search for material price
@@ -525,11 +552,14 @@ int main() {
 
     journey.generatePlanetPackages(destination);
 
-    cout << "\nTotal cargo value: $" << journey.calculateCargoValue() << endl;
-
     int refuelTime = journey.timeToRefuel(fuel);
     cout << "After " << refuelTime << " hours, your spaceship is ready to fly again.\n";
     journey.printPlanetDistances(destination);
+    double cargo = journey.calculateCargoValue();
+
+    journey.updateStats(origin, destination, distance, time, refuelTime, cargo);
+    journey.printStats();
+    journey.printLog();
 
     return 0;
 }
