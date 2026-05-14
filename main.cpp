@@ -65,7 +65,6 @@ class SpaceTravel {
         int routeCount = 0; // Variable to keep track of the number of routes
         int planetMaterialCount = 0; // Variable to keep track of how many materials are on a planet
         int cargoCount = 0; // Variable to keep track of total cargo
-        int trips = 0; // Variable to keep track of how many trips have been done so far
         double refuelSpeed = 5.0; // Variable for how many units per hour are refueled in the ship
         double totalCargo = 0.0;
         Route routes[MAX_ROUTES]; // Array to store routes
@@ -73,16 +72,27 @@ class SpaceTravel {
         Material cargo[MAX_MATERIALS]; // Array to track current cargo on ship
         PlanetMaterial planetMaterial[MAX_MATERIALS]; // Array to store planet materials
         Journey travelLog[MAX_ROUTES];
+        int trips = 0;
+        string planets[MAX_PLANETS];
+        int planetCount = 0;
+        Mission options[MAX_PLANETS];
+        int optionCount = 0;
     
     public:
+        // Function prototypes to open and read text files
+        void loadRoutes(); 
+        void loadMaterials(); 
+        void loadPlanets();
+        void loadPlanetMaterials(); 
+
         void printPlanets(); // Function prototype to print planet names from a file
-        void loadRoutes(); // Function prototype to load routes from a file
-        void loadMaterials(); // Function prototype to load materials from a file
         void printMaterials(); // Function prototype to print materials from the file
-        void loadPlanetMaterials(); // Function prototype to load planet_materials.txt
+        void printPlanetDistances(const string& location);
+        
         void showPlanetMaterials(const string& planet);
         void generatePlanetPackages(const string& planet);
-        void printPlanetDistances(const string& location);
+        void printMissionPlanets(const string& origin, const string& material);
+        
         double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planets
         double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
         double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
@@ -93,7 +103,7 @@ class SpaceTravel {
         double timeToRefuel(double fuel); // Function prototype to both refuel and keep track of the time it takes
         bool validDestination(const string& destination);
         string generateMissionMaterial();
-        void printMissionPlanets(const string& origin, const string& material);
+        
         // Function to keep a running total of stats
         void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
         void printStats();
@@ -101,19 +111,13 @@ class SpaceTravel {
         bool outOfTime();
 };
 
-bool SpaceTravel::validDestination(const string& destination) {
-    return (destination == "Mercury" || destination == "Venus" || destination == "Earth" || destination == "Mars"
-         || destination == "Jupiter" || destination == "Saturn" || destination == "Uranus" || destination == "Neptune");
-}
-
 string SpaceTravel::generateMissionMaterial() {
     int randomIndex = rand() % materialCount;
     return materials[randomIndex].name;
 }
 
 void SpaceTravel::printMissionPlanets(const string& origin, const string& material) {
-    Mission options[MAX_PLANETS];
-    int optionCount = 0;
+    optionCount = 0;
 
     // Linear search for planets that have the required material because the data is not sorted
     for (int i = 0; i < planetMaterialCount; i++) {
@@ -152,6 +156,17 @@ void SpaceTravel::printMissionPlanets(const string& origin, const string& materi
     }
 }
 
+bool SpaceTravel::validDestination(const string& destination) {
+    for (int i = 0; i < optionCount; i++) {
+
+        if (destination == options[i].planet) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 // Open the routes.txt file and read the routes into the routes array
 void SpaceTravel::loadRoutes() {
     fstream infile("routes.txt"); // Open the file for reading
@@ -181,6 +196,21 @@ void SpaceTravel::loadMaterials() {
         materialCount++;
     }
     
+    infile.close();
+}
+
+void SpaceTravel::loadPlanets() {
+    fstream infile("planets.txt"); // Open the file for reading
+
+    if (!infile) {
+        cout << "Error: Could not open materials.txt\n";
+        return;
+    }
+
+    while (planetCount < MAX_PLANETS && infile >> planets[planetCount]) {
+        planetCount++;
+    }
+
     infile.close();
 }
 
@@ -448,7 +478,7 @@ void introMessage(const string& charName) {
     cout << "\n\nDo not fear the darkness of space, but look forward to the"
         << " nearest star!\n";
     cout << "Godspeed " << charName << "!\n";
-    cout << "\n...\n...\nHere are the available planets you can travel to:" << endl;
+    cout << "...\n...\n...\n";
 }
 
 string capitalizeWord(string text){
@@ -470,6 +500,7 @@ int main() {
     string destination;
     string origin = "Earth"; // Starting point
     string keepGoing = "Yes";
+    string requiredMaterial;
     double distance = -1; // Initialize distance to an invalid value
 
     // Call functions to load the text files into the program
@@ -503,7 +534,7 @@ int main() {
     introMessage(charName);
 
     while (keepGoing == "Yes" && !journey.outOfTime()) {
-        string requiredMaterial = journey.generateMissionMaterial();
+        requiredMaterial = journey.generateMissionMaterial();
 
         cout << "\nMission: Find and collect " << requiredMaterial << "!\n";
 
@@ -513,23 +544,8 @@ int main() {
         cin >> destination;
         destination = capitalizeWord(destination);
         
-        cout << "You are currently on " << origin << ". Where would you like to go?\n";
-
-        journey.printPlanetDistances(origin);
-        cin >> destination;
-        destination = capitalizeWord(destination);
-
-        while (!journey.validDestination(destination) || destination == origin) {
-
-            if (!journey.validDestination(destination)) {
-            cout << "Invalid destination. Please choose from the available planets.\n";
-            }
-
-            else if (destination == origin) {
-                cout << "You are already on " << origin
-                << "! Please choose a different destination.\n";
-            }
-
+        while (!journey.validDestination(destination)) {
+            cout << "That planet does not contain the mission material. Choose one from the list.\n";
             cin >> destination;
             destination = capitalizeWord(destination);
         }
@@ -554,19 +570,12 @@ int main() {
         while (fuelNeeded > fuel) {
             cout << "You do not have enough fuel for this trip. Please choose another destination.\n";
 
+            cout << "Which mission planet would you like to travel to?\n";
             cin >> destination;
             destination = capitalizeWord(destination);
-            
-            while (!journey.validDestination(destination) || destination == origin) {
-
-                if (!journey.validDestination(destination)) {
-                    cout << "Invalid destination. Please choose from the available planets.\n";
-                }
-
-                else if (destination == origin) {
-                    cout << "You are already on " << origin << "! Please choose a different destination.\n";
-                }
-
+        
+            while (!journey.validDestination(destination)) {
+                cout << "That planet does not contain the mission material. Choose one from the list.\n";
                 cin >> destination;
                 destination = capitalizeWord(destination);
             }
@@ -606,16 +615,8 @@ int main() {
             cin >> destination;
             destination = capitalizeWord(destination);
 
-            while (!journey.validDestination(destination) || destination == origin) {
-
-                if (!journey.validDestination(destination)) {
-                    cout << "Invalid destination. Please choose from the available planets.\n";
-                }
-
-                else if (destination == origin) {
-                    cout << "You are already on " << origin << "! Please choose a different destination.\n";
-                }
-
+            while (!journey.validDestination(destination)) {
+                cout << "That planet does not contain the mission material. Choose one from the list.\n";
                 cin >> destination;
                 destination = capitalizeWord(destination);
             }
@@ -641,6 +642,12 @@ int main() {
 
                 cin >> destination;
                 destination = capitalizeWord(destination);
+
+                while (!journey.validDestination(destination)) {
+                cout << "That planet does not contain the mission material. Choose one from the list.\n";
+                cin >> destination;
+                destination = capitalizeWord(destination);
+                }
                 
                 distance = -1; // Initialize distance to an invalid value
                 distance = journey.calculateDistance(origin, destination);
@@ -659,11 +666,18 @@ int main() {
     
             journey.showPlanetMaterials(destination);
 
-            cout << "Do you wish to choose " << destination << " as your destination? (type confirm to begin)\n";
+            cout << "Do you wish to choose " << destination << " as your destination? Type confirm to begin and"
+                << " no to choose another destination\n";
             cin >> confirm;
             confirm = capitalizeWord(confirm);
+
+            while (confirm != "Confirm" && confirm != "No") {
+                cout << "Invalid input. Type confirm to begin and no to choose another destination\n";
+                cin >> confirm;
+                confirm = capitalizeWord(confirm);
+            }
         }
-    
+
         fuel -= fuelNeeded; // Update fuel after the trip
         tank = journey.calculateFuelPercentage(fuel);
         cout << "You have successfully traveled to " << destination << "!\n";
@@ -675,7 +689,6 @@ int main() {
 
         int refuelTime = journey.timeToRefuel(fuel);
         cout << "After " << refuelTime << " hours, your spaceship is ready to fly again.\n";
-        journey.printPlanetDistances(destination);
         double cargo = journey.calculateCargoValue();
         fuel = 1500.0;
 
