@@ -684,8 +684,7 @@ void SpaceTravel::goodbyeLog() {
         outFS << "To: " << travelLog[i].to << endl;
         outFS << "Distance: " << travelLog[i].distance << " million kilometers" << endl;
         outFS << "Time: " << travelLog[i].totalHours / 24.0 << " days" << endl;
-        outFS << "Cargo value: $" << travelLog[i].cargo << endl;
-        outFS << endl;
+        outFS << "Cargo value: $" << travelLog[i].cargo << endl << endl;
     }
 
     outFS << "Total cargo payment bonus: $" << totalCargo / 100.0 << endl;
