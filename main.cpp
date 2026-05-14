@@ -52,25 +52,29 @@ class SpaceTravel {
             double distance;
         };
         double MAX_FUEL = 1500.0; // Maximum fuel capacity
-        double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
-        double rateOfSpeed = (1500000.0 / 24.0); // Speed of the spaceship in kilometers per hour
-        int materialCount = 0; // Variable to keep track of the number of materials
-        double tonToKilogram = 907.18; // Conversion factor from kilograms to tons
         double MAX_CARGO_WEIGHT = 50; // Maximum cargo weight in tons
         double MAX_TOTAL_HOURS = 175200.0; // Maximum total hours for 20 year mission
+        double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
+        double FLAT_RATE_PAY_HOUR = 200.0; // Flat pay rate for each hour of travel
+        
+        double rateOfSpeed = (1500000.0 / 24.0); // Speed of the spaceship in kilometers per hour
+        double tonToKilogram = 907.18; // Conversion factor from kilograms to tons
+        double refuelSpeed = 5.0; // Variable for how many units per hour are refueled in the ship
+        
         double totalDistanceTraveled = 0.0;
         double totalHoursAway = 0.0;
-        double FLAT_RATE_PAY_HOUR = 200.0; // Flat pay rate for each hour of travel
-        double cargoWeight = 0.0; // initial cargo weight
-        int routeCount = 0; // Variable to keep track of the number of routes
-        int planetMaterialCount = 0; // Variable to keep track of how many materials are on a planet
-        int cargoCount = 0; // Variable to keep track of total cargo
-        double refuelSpeed = 5.0; // Variable for how many units per hour are refueled in the ship
+        double cargoWeight = 0.0;
         double totalCargo = 0.0;
-        Route routes[MAX_ROUTES]; // Array to store routes
-        Material materials[MAX_MATERIALS]; // Array to store materials
-        Material cargo[MAX_MATERIALS]; // Array to track current cargo on ship
-        PlanetMaterial planetMaterial[MAX_MATERIALS]; // Array to store planet materials
+        
+        
+        Route routes[MAX_ROUTES];
+        int routeCount = 0;
+        Material materials[MAX_MATERIALS];
+        int materialCount = 0;
+        Material cargo[MAX_MATERIALS];
+        int cargoCount = 0;
+        PlanetMaterial planetMaterial[MAX_MATERIALS];
+        int planetMaterialCount = 0;
         Journey travelLog[MAX_ROUTES];
         int trips = 0;
         string planets[MAX_PLANETS];
@@ -97,6 +101,8 @@ class SpaceTravel {
         double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
         double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
         double calculateFuelPercentage(double fuel); // Function prototype to calculate fuel percetage in spaceship
+        double calculateCargoWeight();
+        void convertCargoWeight();
         double getMaterialPrice(const string& materialName); // Function prototype to get material price from materials.txt
         double calculateCargoValue(); // Function prototype to determine the total cost of a cargo package
         double flatMaterialIncrease(const string& planet); // Function prototype to give different planets larger cargo
@@ -110,62 +116,6 @@ class SpaceTravel {
         void printLog();
         bool outOfTime();
 };
-
-string SpaceTravel::generateMissionMaterial() {
-    int randomIndex = rand() % materialCount;
-    return materials[randomIndex].name;
-}
-
-void SpaceTravel::printMissionPlanets(const string& origin, const string& material) {
-    optionCount = 0;
-
-    // Linear search for planets that have the required material because the data is not sorted
-    for (int i = 0; i < planetMaterialCount; i++) {
-        if (planetMaterial[i].material == material && planetMaterial[i].planet != origin) {
-
-            double distance = calculateDistance(origin, planetMaterial[i].planet);
-
-            if (distance >= 0) {
-                options[optionCount].planet = planetMaterial[i].planet;
-                options[optionCount].distance = distance;
-                optionCount++;
-            }
-        }
-    }
-
-    // Sort planets by distance using selection sort
-    for (int i = 0; i < optionCount - 1; i++) {
-        for (int j = i + 1; j < optionCount; j++) {
-            if (options[i].distance > options[j].distance) {
-                Mission temp = options[i];
-                options[i] = options[j];
-                options[j] = temp;
-            }
-        }
-    }
-
-    cout << "\nPlanets that contain " << material << ":\n";
-
-    if (optionCount == 0) {
-        cout << "No planets found with that material.\n";
-        return;
-    }
-
-    for (int i = 0; i < optionCount; i++) {
-        cout << "- " << options[i].planet << " : " << options[i].distance << " million kilometers\n";
-    }
-}
-
-bool SpaceTravel::validDestination(const string& destination) {
-    for (int i = 0; i < optionCount; i++) {
-
-        if (destination == options[i].planet) {
-            return true;
-        }
-    }
-
-    return false;
-}
 
 // Open the routes.txt file and read the routes into the routes array
 void SpaceTravel::loadRoutes() {
@@ -229,6 +179,64 @@ void SpaceTravel::loadPlanetMaterials() {
     
     infile.close(); // closed text file
 }
+
+string SpaceTravel::generateMissionMaterial() {
+    int randomIndex = rand() % materialCount;
+    return materials[randomIndex].name;
+}
+
+void SpaceTravel::printMissionPlanets(const string& origin, const string& material) {
+    optionCount = 0;
+
+    // Linear search for planets that have the required material because the data is not sorted
+    for (int i = 0; i < planetMaterialCount; i++) {
+        if (planetMaterial[i].material == material && planetMaterial[i].planet != origin) {
+
+            double distance = calculateDistance(origin, planetMaterial[i].planet);
+
+            if (distance >= 0) {
+                options[optionCount].planet = planetMaterial[i].planet;
+                options[optionCount].distance = distance;
+                optionCount++;
+            }
+        }
+    }
+
+    // Sort planets by distance using selection sort
+    for (int i = 0; i < optionCount - 1; i++) {
+        for (int j = i + 1; j < optionCount; j++) {
+            if (options[i].distance > options[j].distance) {
+                Mission temp = options[i];
+                options[i] = options[j];
+                options[j] = temp;
+            }
+        }
+    }
+
+    cout << "\nPlanets that contain " << material << ":\n";
+
+    if (optionCount == 0) {
+        cout << "No planets found with that material.\n";
+        return;
+    }
+
+    for (int i = 0; i < optionCount; i++) {
+        cout << "- " << options[i].planet << " : " << options[i].distance << " million kilometers\n";
+    }
+}
+
+bool SpaceTravel::validDestination(const string& destination) {
+    for (int i = 0; i < optionCount; i++) {
+
+        if (destination == options[i].planet) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
 
 void SpaceTravel::updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo) {
     if (trips < MAX_ROUTES) {
@@ -347,6 +355,22 @@ double SpaceTravel::calculateCargoValue() {
     }
 
     return total;
+}
+
+double SpaceTravel::calculateCargoWeight() {
+    double totalWeight = 0.0;
+
+    for (int i = 0; i < cargoCount; i++) {
+        totalWeight += cargo[i].amount;
+    }
+
+    return totalWeight;
+}
+
+void SpaceTravel::convertCargoWeight() {
+    double cargoKilograms = calculateCargoWeight();
+
+    cargoWeight += (cargoKilograms / tonToKilogram);
 }
 
 //Give the planets further from Earth an increase to their cargo size
