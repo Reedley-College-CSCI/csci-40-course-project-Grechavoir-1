@@ -753,20 +753,29 @@ int main() {
         while (!journey.fuelCheck(origin, destination, fuel)) {
             cout << "You do not have enough fuel to travel to " << destination << ".\n";
             cout << "do you want to do a stop at a planet along the way to refuel? (yes/no)\n";
+            
             cin >> stopGapYesOrNo;
             stopGapYesOrNo = capitalizeWord(stopGapYesOrNo);
+
             while (stopGapYesOrNo != "Yes" && stopGapYesOrNo != "No") {
                 cout << "Please input 'yes' or 'no'";
                 cin >> stopGapYesOrNo;
                 stopGapYesOrNo = capitalizeWord(stopGapYesOrNo);
             }
+
+            if (stopGapYesOrNo == "No") {
+                cout << "Choose another mission planet instead.\n";
+                destination = journey.getDestinationPlanet();
+                continue;
+            }
+
             cout << "Choose a bridge planet to stop and refuel:\n";
             journey.printPlanetDistances(origin);
 
             cin >> bridge;
             bridge = capitalizeWord(bridge);
 
-            while (bridge == origin || !journey.fuelCheck(origin, bridge, fuel)) {
+            while (bridge == origin || bridge == destination || !journey.fuelCheck(origin, bridge, fuel)) {
                 cout << "Invalid bridge stop or not enough fuel. Choose another planet:\n";
                 cin >> bridge;
                 bridge = capitalizeWord(bridge);
@@ -775,7 +784,7 @@ int main() {
             journey.stopGapPlanet(origin, bridge, fuel);
             
 
-            destination = journey.getDestinationPlanet();
+            cout << "Checking if " << destination << " is now reachable from " << origin << "...\n";
         }
 
         journey.showPlanetMaterials(destination);
