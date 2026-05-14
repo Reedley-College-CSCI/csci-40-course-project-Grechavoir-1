@@ -96,13 +96,21 @@ class SpaceTravel {
         void showPlanetMaterials(const string& planet);
         void generatePlanetPackages(const string& planet);
         void printMissionPlanets(const string& origin, const string& material);
+
+        double calculateCargoWeight();
+        void convertCargoWeight();
+        void printCurrentCargoCapacity();
+        bool cargoTooClose();
+        void dropOffCargo();
+
+        double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
+        double cargoSpeedSlowDown();
         
         double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planets
         double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
-        double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
+        
         double calculateFuelPercentage(double fuel); // Function prototype to calculate fuel percetage in spaceship
-        double calculateCargoWeight();
-        void convertCargoWeight();
+        
         double getMaterialPrice(const string& materialName); // Function prototype to get material price from materials.txt
         double calculateCargoValue(); // Function prototype to determine the total cost of a cargo package
         double flatMaterialIncrease(const string& planet); // Function prototype to give different planets larger cargo
@@ -373,6 +381,21 @@ void SpaceTravel::convertCargoWeight() {
     cargoWeight += (cargoKilograms / tonToKilogram);
 }
 
+void SpaceTravel::printCurrentCargoCapacity() {
+    cout << "Your ship's current cargo capacity is at " << ((cargoWeight / MAX_CARGO_WEIGHT) * 100) << "%.\n";
+    cout << "Your currently have " << cargoWeight << " tons of material on board.\n";
+}
+
+bool SpaceTravel::cargoTooClose() {
+    return cargoWeight >= (MAX_CARGO_WEIGHT * 0.85);
+}
+
+void SpaceTravel::dropOffCargo() {
+    cargoWeight = 0.0;
+    cout << "\nCargo has successfully been dropped off on Earth!\n";
+    cout << "You now have an empty bay to fill. Get to it.\n";
+}
+
 //Give the planets further from Earth an increase to their cargo size
 double SpaceTravel::flatMaterialIncrease(const string& planet) {
     if (planet == "Mercury") {
@@ -435,7 +458,15 @@ double SpaceTravel::calculateFuelPercentage(double fuel) {
 //calculate travel time for a trip
 double SpaceTravel::calculateTravelTime(double distance) {
     double timeNeeded = (distance * 1000000) / rateOfSpeed; // Time in hours
-    return timeNeeded;
+    double slowed = cargoSpeedSlowDown();
+
+    return (timeNeeded * slowed);
+}
+
+double SpaceTravel::cargoSpeedSlowDown() {
+    double cargoPercent = cargoWeight / MAX_CARGO_WEIGHT;
+
+    return 1 + (cargoPercent * 0.35);
 }
 
 double SpaceTravel::timeToRefuel(double& fuel) {
@@ -718,6 +749,12 @@ int main() {
         int refuelTime = journey.timeToRefuel(fuel);
         cout << "After " << refuelTime << " hours, your spaceship is ready to fly again.\n";
         double cargo = journey.calculateCargoValue();
+        journey.convertCargoWeight();
+
+        if (journey.cargoTooClose() && origin != "Earth") {
+        cout << "\nWarning: Your cargo bay is almost full.\n";
+        cout << "You should return to Earth soon to unload cargo.\n";
+    }
 
         journey.updateStats(origin, destination, distance, time, refuelTime, cargo);
 
@@ -727,7 +764,9 @@ int main() {
             cout << "\nYou have reached the maximum mission time and must retire.\n";
             break;
         }
-        cout << "Your tank is now at " << fuel << " units";
+        cout << "Your tank is now at " << fuel << " units\n";
+        journey.printCurrentCargoCapacity();
+
         cout << "\nWould you like to keep traveling? (yes/no)\n";
         cin >> keepGoing;
         keepGoing = capitalizeWord(keepGoing);
