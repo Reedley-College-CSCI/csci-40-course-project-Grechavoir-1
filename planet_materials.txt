@@ -7,12 +7,14 @@ Venus Nitrogen
 Venus Sulfur
 Venus Iron
 Venus Silicon
+Venus Phosphorus
 Mars Oxygen
 Mars Silicon
 Mars Iron
 Mars Magnesium
 Mars Aluminum
 Mars Potassium
+Mars Phosphorus
 Jupiter Hydrogen
 Jupiter Helium
 Jupiter Methane
@@ -23,6 +25,7 @@ Saturn Methane
 Saturn Iron
 Saturn Nickel
 Saturn Ammonia
+Saturn Phosphorus
 Uranus Hydrogen
 Uranus Helium
 Uranus Oxygen

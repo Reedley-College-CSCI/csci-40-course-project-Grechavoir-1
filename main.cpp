@@ -24,6 +24,32 @@ const int MAX_MATERIALS = 100; // Maximum number of materials
 const int MAX_ROUTES = 100; // Maximum number of routes
 const int MAX_PLANETS = 8; // Maximum number of planets
 
+void introMessage(const string& charName);
+string capitalizeWord(string text);
+
+void introMessage(const string& charName) {
+    cout << "\nWelcome to the Space Exploration Journey!\n";
+    cout << "You have been drafted to venture the cosmos and"
+         << " be a hero for your home planet!\n";
+    
+    cout << "\n...Loading...\n...loading...\n...loading...\n";
+    cout << "You are now in your spaceship, ready to explore the universe!\n";
+    cout << "Your spaceship is fully loaded with fuel and ready to go.\n";
+    cout << "\n\nDo not fear the darkness of space, but look forward to the"
+        << " nearest star!\n";
+    cout << "Godspeed " << charName << "!\n";
+    cout << "...\n...\n...\n";
+}
+
+string capitalizeWord(string text){
+    for (int i = 0; i < text.length(); i++) {
+        text[i] = tolower(text[i]); // Convert the letters to lowercase
+    }
+    text[0] = toupper(text[0]); // Capitalize the first letter
+    
+    return text;
+}
+
 class SpaceTravel {
     private:
         struct Route {
@@ -92,6 +118,11 @@ class SpaceTravel {
         void printPlanets(); // Function prototype to print planet names from a file
         void printMaterials(); // Function prototype to print materials from the file
         void printPlanetDistances(const string& location);
+
+        string getDestinationPlanet(SpaceTravel& journey);
+        string confirmUserChoice();
+        bool trip(string& origin, string destination, double& fuel);
+        bool fuelCheck(string origin, string destination, double fuel);
         
         void showPlanetMaterials(const string& planet);
         void generatePlanetPackages(const string& planet);
@@ -186,6 +217,82 @@ void SpaceTravel::loadPlanetMaterials() {
     }
     
     infile.close(); // closed text file
+}
+
+string SpaceTravel::getDestinationPlanet(SpaceTravel& journey) {
+    string destination;
+
+    cout << "Which planet would you like to travel to?\n";
+    cin >> destination;
+    destination = capitalizeWord(destination);
+
+    while (!journey.validDestination(destination)) {
+        cout << "That planet does not contain the required materials. Choose one from the list.\n";
+        cin >> destination;
+        destination = capitalizeWord(destination);
+    }
+
+    return destination;
+}
+
+string SpaceTravel::confirmUserChoice() {
+    string confirm;
+
+    cout << "Type confirm to begin or no to choose another destination:\n";
+    cin >> confirm;
+    confirm = capitalizeWord(confirm);
+
+    while (confirm != "Confirm" && confirm != "No") {
+        cout << "Invalid input. Type confirm or no:\n";
+        cin >> confirm;
+        confirm = capitalizeWord(confirm);
+    }
+
+    return confirm;
+}
+
+bool SpaceTravel::trip(string& origin, string destination, double& fuel) {
+    double distance = calculateDistance(origin, destination);
+    if (distance < 0) {
+        cout << "Unable to calculate distance.\n";
+        return false;
+    }
+
+    double fuelNeeded = calculateFuelNeeded(distance);
+
+    if (fuelNeeded > fuel) {
+        cout << "You do not have enough fuel for this trip.\n";
+        return false;
+    }
+
+    fuel -= fuelNeeded;
+
+    double travelTime = calculateTravelTime(distance);
+
+    cout << "You have successfully traveled to " << destination << "!\n";
+    cout << "Travel time: " << travelTime / 24.0 << " days.\n";
+
+    generatePlanetPackages(destination);
+
+    double refuelTime = timeToRefuel(fuel);
+    double cargoValue = calculateCargoValue();
+
+    convertCargoWeight();
+    updateStats(origin, destination, distance, travelTime, refuelTime, cargoValue);
+
+    origin = destination;
+
+    cout << "After " << refuelTime << " hours, your spaceship is ready to fly again.\n";
+    cout << "Your tank is now at " << fuel << " units.\n";
+
+    return true;
+}
+
+bool SpaceTravel::fuelCheck(string origin, string destination, double fuel) {
+    double distance = calculateDistance(origin, destination);
+    double fuelNeeded = calculateFuelNeeded(distance);
+
+    return fuelNeeded <= fuel;
 }
 
 string SpaceTravel::generateMissionMaterial() {
@@ -523,32 +630,6 @@ bool SpaceTravel::outOfTime() {
     return totalHoursAway >= MAX_TOTAL_HOURS;
 }
 
-void introMessage(const string& charName);
-string capitalizeWord(string text);
-
-void introMessage(const string& charName) {
-    cout << "\nWelcome to the Space Exploration Journey!\n";
-    cout << "You have been drafted to venture the cosmos and"
-         << " be a hero for your home planet!\n";
-    
-    cout << "\n...Loading...\n...loading...\n...loading...\n";
-    cout << "You are now in your spaceship, ready to explore the universe!\n";
-    cout << "Your spaceship is fully loaded with fuel and ready to go.\n";
-    cout << "\n\nDo not fear the darkness of space, but look forward to the"
-        << " nearest star!\n";
-    cout << "Godspeed " << charName << "!\n";
-    cout << "...\n...\n...\n";
-}
-
-string capitalizeWord(string text){
-    for (int i = 0; i < text.length(); i++) {
-        text[i] = tolower(text[i]); // Convert the letters to lowercase
-    }
-    text[0] = toupper(text[0]); // Capitalize the first letter
-    
-    return text;
-}
-
 int main() {
     srand(time(0));
     cout << fixed << setprecision(2); // Set decimal precision for output
@@ -561,6 +642,7 @@ int main() {
     string keepGoing = "Yes";
     string requiredMaterial;
     double distance = -1; // Initialize distance to an invalid value
+    double fuelNeeded;
 
     // Call functions to load the text files into the program
     journey.loadMaterials();
@@ -596,180 +678,61 @@ int main() {
         requiredMaterial = journey.generateMissionMaterial();
 
         cout << "\nMission: Find and collect " << requiredMaterial << "!\n";
-
         journey.printMissionPlanets(origin, requiredMaterial);
 
-        cout << "Which mission planet would you like to travel to?\n";
-        cin >> destination;
-        destination = capitalizeWord(destination);
-        
-        while (!journey.validDestination(destination)) {
-            cout << "That planet does not contain the mission material. Choose one from the list.\n";
-            cin >> destination;
-            destination = capitalizeWord(destination);
-        }
-        
-        cout << "You have chosen to travel to " << destination << ".\n";
+        destination = journey.getDestinationPlanet(journey);
 
-        cout << "Calculating route from " << origin << " to " << destination << "...\n";
+        while (!journey.fuelCheck(origin, destination, fuel)) {
+            cout << "You do not have enough fuel to travel to "
+            << destination << ".\n";
+            cout << "Please choose another planet from the mission list.\n";
 
-        distance = journey.calculateDistance(origin, destination);
-
-        if (distance < 0) {
-            cout << "Unable to calculate distance.\n";
-            return 0;
+            destination = journey.getDestinationPlanet(journey);
         }
 
-        cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
-
-        cout << "Calculating fuel needed for the trip...\n";
-        double fuelNeeded = journey.calculateFuelNeeded(distance);
-        cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
-
-        while (fuelNeeded > fuel) {
-            cout << "You do not have enough fuel for this trip. Please choose another destination.\n";
-
-            cout << "Which mission planet would you like to travel to?\n";
-            cin >> destination;
-            destination = capitalizeWord(destination);
-        
-            while (!journey.validDestination(destination)) {
-                cout << "That planet does not contain the mission material. Choose one from the list.\n";
-                cin >> destination;
-                destination = capitalizeWord(destination);
-            }
-        
-            cout << "You have chosen to travel to " << destination << ".\n";
-
-            distance = -1; // Initialize distance to an invalid value
-            distance = journey.calculateDistance(origin, destination);
-
-            if (distance < 0) {
-                cout << "Unable to calculate distance." << endl;
-                return 0;
-            }
-        
-            cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
-    
-            cout << "Calculating fuel needed for the trip...\n";
-            fuelNeeded = journey.calculateFuelNeeded(distance);
-            cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
-        }
-    
         journey.showPlanetMaterials(destination);
 
-        cout << "Do you wish to choose " << destination << " as your destination? Type confirm to begin and no to choose another "
-            << "destination\n";
-        cin >> confirm;
-        confirm = capitalizeWord(confirm);
+        confirm = journey.confirmUserChoice();
 
-        while (confirm != "Confirm" && confirm != "No") {
-            cout << "Invalid input. Type confirm to begin and no to choose another destination\n";
-            cin >> confirm;
-            confirm = capitalizeWord(confirm);
-        }
+        while (confirm == "No") {
+            destination = journey.getDestinationPlanet(journey);
 
-        while (confirm != "Confirm") {
-            cout << "Where would you like to go to instead?\n";
-            cin >> destination;
-            destination = capitalizeWord(destination);
+            while (!journey.fuelCheck(origin, destination, fuel)) {
+                cout << "You do not have enough fuel to travel to "
+                << destination << ".\n";
+                cout << "Please choose another planet from the mission list.\n";
 
-            while (!journey.validDestination(destination)) {
-                cout << "That planet does not contain the mission material. Choose one from the list.\n";
-                cin >> destination;
-                destination = capitalizeWord(destination);
-            }
-        
-            cout << "You have chosen to travel to " << destination << ".\n";
-
-            distance = -1; // Initialize distance to an invalid value
-            distance = journey.calculateDistance(origin, destination);
-
-            if (distance < 0) {
-                cout << "Unable to calculate distance.\n";
-                return 0;
+                destination = journey.getDestinationPlanet(journey);
             }
 
-            cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
-
-            cout << "Calculating fuel needed for the trip...\n";
-            fuelNeeded = journey.calculateFuelNeeded(distance);
-            cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
-
-            while (fuelNeeded > fuel) {
-                cout << "You do not have enough fuel for this trip. Please choose another destination.\n";
-
-                cin >> destination;
-                destination = capitalizeWord(destination);
-
-                while (!journey.validDestination(destination)) {
-                cout << "That planet does not contain the mission material. Choose one from the list.\n";
-                cin >> destination;
-                destination = capitalizeWord(destination);
-                }
-                
-                distance = -1; // Initialize distance to an invalid value
-                distance = journey.calculateDistance(origin, destination);
-
-                if (distance < 0) {
-                    cout << "Unable to calculate distance." << endl;
-                    return 0;
-                }
-        
-                cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
-    
-                cout << "Calculating fuel needed for the trip...\n";
-                fuelNeeded = journey.calculateFuelNeeded(distance);
-                cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
-            }
-    
             journey.showPlanetMaterials(destination);
-
-            cout << "Do you wish to choose " << destination << " as your destination? Type confirm to begin and"
-                << " no to choose another destination\n";
-            cin >> confirm;
-            confirm = capitalizeWord(confirm);
-
-            while (confirm != "Confirm" && confirm != "No") {
-                cout << "Invalid input. Type confirm to begin and no to choose another destination\n";
-                cin >> confirm;
-                confirm = capitalizeWord(confirm);
-            }
+            confirm = journey.confirmUserChoice();
         }
 
-        fuel -= fuelNeeded; // Update fuel after the trip
-        tank = journey.calculateFuelPercentage(fuel);
-        cout << "You have successfully traveled to " << destination << "!\n";
-        cout << "Remaining fuel: " << tank << "%.\n";
-        double time = journey.calculateTravelTime(distance);
-        cout << "Travel time: " << (time / 24.0) << " days.\n";
+        bool tripWorked = journey.trip(origin, destination, fuel);
 
-        journey.generatePlanetPackages(destination);
-
-        int refuelTime = journey.timeToRefuel(fuel);
-        cout << "After " << refuelTime << " hours, your spaceship is ready to fly again.\n";
-        double cargo = journey.calculateCargoValue();
-        journey.convertCargoWeight();
+        if (!tripWorked) {
+            cout << "Trip canceled. Please choose another destination.\n";
+            continue;
+        }
 
         if (journey.cargoTooClose() && origin != "Earth") {
-        cout << "\nWarning: Your cargo bay is almost full.\n";
-        cout << "You should return to Earth soon to unload cargo.\n";
-    }
-
-        journey.updateStats(origin, destination, distance, time, refuelTime, cargo);
-
-        origin = destination;
-
-        if (journey.outOfTime()) {
-            cout << "\nYou have reached the maximum mission time and must retire.\n";
-            break;
+            cout << "\nWarning: Your cargo bay is almost full.\n";
+            cout << "You should return to Earth soon to unload cargo.\n";
         }
-        cout << "Your tank is now at " << fuel << " units\n";
+
         journey.printCurrentCargoCapacity();
 
         cout << "\nWould you like to keep traveling? (yes/no)\n";
         cin >> keepGoing;
         keepGoing = capitalizeWord(keepGoing);
+
+        while (keepGoing != "Yes" && keepGoing != "No") {
+            cout << "Please type 'yes' or 'no'\n";
+            cout << "Would you like to keep traveling? (yes/no)\n";
+            cin >> keepGoing;
+            keepGoing = capitalizeWord(keepGoing);
+        }
     }
     journey.printStats();
     journey.printLog();
