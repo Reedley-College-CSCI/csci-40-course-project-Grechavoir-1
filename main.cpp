@@ -119,7 +119,7 @@ class SpaceTravel {
         void printMaterials(); // Function prototype to print materials from the file
         void printPlanetDistances(const string& location);
 
-        string getDestinationPlanet(SpaceTravel& journey);
+        string getDestinationPlanet();
         string confirmUserChoice();
         bool trip(string& origin, string destination, double& fuel);
         bool fuelCheck(string origin, string destination, double fuel);
@@ -219,14 +219,14 @@ void SpaceTravel::loadPlanetMaterials() {
     infile.close(); // closed text file
 }
 
-string SpaceTravel::getDestinationPlanet(SpaceTravel& journey) {
+string SpaceTravel::getDestinationPlanet() {
     string destination;
 
     cout << "Which planet would you like to travel to?\n";
     cin >> destination;
     destination = capitalizeWord(destination);
 
-    while (!journey.validDestination(destination)) {
+    while (!validDestination(destination)) {
         cout << "That planet does not contain the required materials. Choose one from the list.\n";
         cin >> destination;
         destination = capitalizeWord(destination);
@@ -680,14 +680,14 @@ int main() {
         cout << "\nMission: Find and collect " << requiredMaterial << "!\n";
         journey.printMissionPlanets(origin, requiredMaterial);
 
-        destination = journey.getDestinationPlanet(journey);
+        destination = journey.getDestinationPlanet();
 
         while (!journey.fuelCheck(origin, destination, fuel)) {
             cout << "You do not have enough fuel to travel to "
             << destination << ".\n";
             cout << "Please choose another planet from the mission list.\n";
 
-            destination = journey.getDestinationPlanet(journey);
+            destination = journey.getDestinationPlanet();
         }
 
         journey.showPlanetMaterials(destination);
@@ -695,14 +695,14 @@ int main() {
         confirm = journey.confirmUserChoice();
 
         while (confirm == "No") {
-            destination = journey.getDestinationPlanet(journey);
+            destination = journey.getDestinationPlanet();
 
             while (!journey.fuelCheck(origin, destination, fuel)) {
                 cout << "You do not have enough fuel to travel to "
                 << destination << ".\n";
                 cout << "Please choose another planet from the mission list.\n";
 
-                destination = journey.getDestinationPlanet(journey);
+                destination = journey.getDestinationPlanet();
             }
 
             journey.showPlanetMaterials(destination);
