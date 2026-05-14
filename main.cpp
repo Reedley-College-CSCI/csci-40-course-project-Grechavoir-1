@@ -154,7 +154,7 @@ class SpaceTravel {
         void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
         void printStats();
         void printLog();
-        void goodbyeLog();
+        void goodbyeLog(const string& charName);
         bool outOfTime();
 };
 
@@ -647,7 +647,7 @@ bool SpaceTravel::outOfTime() {
     return totalHoursAway >= MAX_TOTAL_HOURS;
 }
 
-void SpaceTravel::goodbyeLog() {
+void SpaceTravel::goodbyeLog(const string& charName) {
     ofstream outFS;
 
     // Open file
@@ -657,6 +657,8 @@ void SpaceTravel::goodbyeLog() {
       cout << "Could not open file Farewell.txt." << endl;
       return;
    }
+
+   outFS << "Here is your report captain " << charName << endl;
 
    outFS << fixed << setprecision(2);
 
@@ -786,6 +788,7 @@ int main() {
     }
     journey.printStats();
     //journey.printLog();
+    journey.goodbyeLog(charName);
 
     return 0;
 }
