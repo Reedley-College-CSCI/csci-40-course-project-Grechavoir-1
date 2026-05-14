@@ -83,7 +83,7 @@ class SpaceTravel {
         double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
         double FLAT_RATE_PAY_HOUR = 200.0; // Flat pay rate for each hour of travel
         
-        double rateOfSpeed = (15000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
+        double rateOfSpeed = (7000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
         double tonToKilogram = 907.18; // Conversion factor from kilograms to tons
         double refuelSpeed = 5.0; // Variable for how many units per hour are refueled in the ship
         
@@ -133,6 +133,7 @@ class SpaceTravel {
         void printCurrentCargoCapacity();
         bool cargoTooClose();
         void dropOffCargo();
+        void clockCountdown();
 
         double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
         double cargoSpeedSlowDown();
@@ -505,6 +506,18 @@ void SpaceTravel::dropOffCargo() {
     cout << "You now have an empty bay to fill. Get to it.\n";
 }
 
+void SpaceTravel::clockCountdown() {
+    double hoursLeft = MAX_TOTAL_HOURS - totalHoursAway;
+
+    double yearsLeft = hoursLeft / 24.0 / 365.0;
+    double daysLeft = hoursLeft / 24.0;
+
+    cout << fixed << setprecision(2);
+
+    cout << "Time remaining until mandatory retirement:\n";
+    cout << daysLeft << " days (" << yearsLeft << " years)\n";
+}
+
 //Give the planets further from Earth an increase to their cargo size
 double SpaceTravel::flatMaterialIncrease(const string& planet) {
     if (planet == "Mercury") {
@@ -811,6 +824,7 @@ int main() {
         }
 
         journey.printCurrentCargoCapacity();
+        journey.clockCountdown();
 
         cout << "\nWould you like to keep traveling? (yes/no)\n";
         cin >> keepGoing;
