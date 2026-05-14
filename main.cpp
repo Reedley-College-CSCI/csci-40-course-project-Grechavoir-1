@@ -80,9 +80,9 @@ class SpaceTravel {
         double MAX_CARGO_WEIGHT = 50; // Maximum cargo weight in tons
         double MAX_TOTAL_HOURS = 175200.0; // Maximum total hours for 20 year mission
         double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
-        double FLAT_RATE_PAY_HOUR = 200.0; // Flat pay rate for each hour of travel
+        double FLAT_RATE_PAY_HOUR = 50.0; // Flat pay rate for each hour of travel
         
-        double rateOfSpeed = (7000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
+        double rateOfSpeed = (6000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
         double tonToKilogram = 907.18; // Conversion factor from kilograms to tons
         double refuelSpeed = 5.0; // Variable for how many units per hour are refueled in the ship
         
@@ -262,11 +262,6 @@ bool SpaceTravel::trip(string& origin, string destination, double& fuel) {
 
     double fuelNeeded = calculateFuelNeeded(distance);
 
-    if (fuelNeeded > fuel) {
-        cout << "You do not have enough fuel for this trip.\n";
-        return false;
-    }
-
     fuel -= fuelNeeded;
 
     double travelTime = calculateTravelTime(distance);
@@ -283,6 +278,10 @@ bool SpaceTravel::trip(string& origin, string destination, double& fuel) {
     updateStats(origin, destination, distance, travelTime, refuelTime, cargoValue);
 
     origin = destination;
+
+    if (origin == "Earth") {
+        dropOffCargo();
+    }
 
     cout << "After " << refuelTime << " hours, your spaceship is ready to fly again.\n";
     cout << "Your tank is now at " << fuel << " units.\n";
@@ -423,6 +422,11 @@ void SpaceTravel::showPlanetMaterials(const string& planet){
 
 //Make the cargo
 void SpaceTravel::generatePlanetPackages(const string& planet) {
+
+    if (planet == "Earth") { // Stop the program from outputing a zero dollar package when returning to earth
+        cargoCount = 0;
+        return;
+    }
 
     cout << "\nPre-packed cargo available on " << planet << ":\n";
 
@@ -735,14 +739,6 @@ int main() {
         while (confirm == "No") {
             destination = journey.getDestinationPlanet();
 
-            while (!journey.fuelCheck(origin, destination, fuel)) {
-                cout << "You do not have enough fuel to travel to "
-                << destination << ".\n";
-                cout << "Please choose another planet from the mission list.\n";
-
-                destination = journey.getDestinationPlanet();
-            }
-
             journey.showPlanetMaterials(destination);
             confirm = journey.confirmUserChoice();
         }
@@ -761,6 +757,21 @@ int main() {
 
         journey.cargoStatistics();
         journey.clockCountdown();
+
+        if (journey.cargoTooClose() && origin != "Earth") {
+            cout << "\n***Warning*** Your cargo bay is almost full.\n";
+            cout << "Would you like to return to Earth to unload? (yes/no)\n";
+
+            string returnChoice;
+            cin >> returnChoice;
+            returnChoice = capitalizeWord(returnChoice);
+
+            if (returnChoice == "Yes") {
+                bool returned = journey.trip(origin, "Earth", fuel);
+
+                continue;
+            }
+        }
 
         cout << "\nWould you like to keep traveling? (yes/no)\n";
         cin >> keepGoing;
