@@ -35,3 +35,4 @@ Neptune Ammonia
 Neptune Methane
 Neptune Nickel
 Neptune Iron
+Neptune Potassium

@@ -47,6 +47,10 @@ class SpaceTravel {
             double totalHours;
             double cargo;
         };
+        struct Mission {
+            string planet;
+            double distance;
+        };
         double MAX_FUEL = 1500.0; // Maximum fuel capacity
         double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
         double rateOfSpeed = (1500000.0 / 24.0); // Speed of the spaceship in kilometers per hour
@@ -88,6 +92,8 @@ class SpaceTravel {
         double flatMaterialIncrease(const string& planet); // Function prototype to give different planets larger cargo
         double timeToRefuel(double fuel); // Function prototype to both refuel and keep track of the time it takes
         bool validDestination(const string& destination);
+        string generateMissionMaterial();
+        void printMissionPlanets(const string& origin, const string& material);
         // Function to keep a running total of stats
         void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
         void printStats();
@@ -98,6 +104,52 @@ class SpaceTravel {
 bool SpaceTravel::validDestination(const string& destination) {
     return (destination == "Mercury" || destination == "Venus" || destination == "Earth" || destination == "Mars"
          || destination == "Jupiter" || destination == "Saturn" || destination == "Uranus" || destination == "Neptune");
+}
+
+string SpaceTravel::generateMissionMaterial() {
+    int randomIndex = rand() % materialCount;
+    return materials[randomIndex].name;
+}
+
+void SpaceTravel::printMissionPlanets(const string& origin, const string& material) {
+    Mission options[MAX_PLANETS];
+    int optionCount = 0;
+
+    // Linear search for planets that have the required material because the data is not sorted
+    for (int i = 0; i < planetMaterialCount; i++) {
+        if (planetMaterial[i].material == material && planetMaterial[i].planet != origin) {
+
+            double distance = calculateDistance(origin, planetMaterial[i].planet);
+
+            if (distance >= 0) {
+                options[optionCount].planet = planetMaterial[i].planet;
+                options[optionCount].distance = distance;
+                optionCount++;
+            }
+        }
+    }
+
+    // Sort planets by distance using selection sort
+    for (int i = 0; i < optionCount - 1; i++) {
+        for (int j = i + 1; j < optionCount; j++) {
+            if (options[i].distance > options[j].distance) {
+                Mission temp = options[i];
+                options[i] = options[j];
+                options[j] = temp;
+            }
+        }
+    }
+
+    cout << "\nPlanets that contain " << material << ":\n";
+
+    if (optionCount == 0) {
+        cout << "No planets found with that material.\n";
+        return;
+    }
+
+    for (int i = 0; i < optionCount; i++) {
+        cout << "- " << options[i].planet << " : " << options[i].distance << " million kilometers\n";
+    }
 }
 
 // Open the routes.txt file and read the routes into the routes array
@@ -451,6 +503,16 @@ int main() {
     introMessage(charName);
 
     while (keepGoing == "Yes" && !journey.outOfTime()) {
+        string requiredMaterial = journey.generateMissionMaterial();
+
+        cout << "\nMission: Find and collect " << requiredMaterial << "!\n";
+
+        journey.printMissionPlanets(origin, requiredMaterial);
+
+        cout << "Which mission planet would you like to travel to?\n";
+        cin >> destination;
+        destination = capitalizeWord(destination);
+        
         cout << "You are currently on " << origin << ". Where would you like to go?\n";
 
         journey.printPlanetDistances(origin);
