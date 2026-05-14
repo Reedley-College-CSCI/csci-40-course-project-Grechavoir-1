@@ -83,7 +83,7 @@ class SpaceTravel {
         double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
         double FLAT_RATE_PAY_HOUR = 200.0; // Flat pay rate for each hour of travel
         
-        double rateOfSpeed = (1500000.0 / 24.0); // Speed of the spaceship in kilometers per hour
+        double rateOfSpeed = (15000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
         double tonToKilogram = 907.18; // Conversion factor from kilograms to tons
         double refuelSpeed = 5.0; // Variable for how many units per hour are refueled in the ship
         
@@ -508,37 +508,29 @@ void SpaceTravel::dropOffCargo() {
 //Give the planets further from Earth an increase to their cargo size
 double SpaceTravel::flatMaterialIncrease(const string& planet) {
     if (planet == "Mercury") {
-        return 0.022; //(Distance from Earth to Mercury / Earth to Venus / 100) this applies to all of the other with Veus
-                      //Venus as the standard
-    }
-
-    else if (planet == "Venus") {
-        return 0.010;
-    }
-
-    else if (planet == "Mars") {
-        return 0.019;
-    }
-
-    else if (planet == "Jupiter") {
-        return 0.153;
-    }
-
-    else if (planet == "Saturn") {
-        return 0.311;
-    }
-
-    else if (planet == "Uranus") {
-        return 0.664;
-    }
-
-    else if (planet == "Neptune") {
-        return 1.061;
-    }
-
-    else {
-        return 0;
-    }
+    return 0.05;
+}
+else if (planet == "Venus") {
+    return 0.03;
+}
+else if (planet == "Mars") {
+    return 0.08;
+}
+else if (planet == "Jupiter") {
+    return 0.75;
+}
+else if (planet == "Saturn") {
+    return 1.25;
+}
+else if (planet == "Uranus") {
+    return 2.00;
+}
+else if (planet == "Neptune") {
+    return 3.00;
+}
+else {
+    return 0;
+}
 }
 
 //calculate distance between planets
