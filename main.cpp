@@ -96,7 +96,7 @@ class SpaceTravel {
 };
 
 bool SpaceTravel::validDestination(const string& destination) {
-    return (destination == "Mercury" || destination == "Venus" || destination == "Earth" || destination == "Venus"
+    return (destination == "Mercury" || destination == "Venus" || destination == "Earth" || destination == "Mars"
          || destination == "Jupiter" || destination == "Saturn" || destination == "Uranus" || destination == "Neptune");
 }
 
@@ -168,7 +168,9 @@ void SpaceTravel::updateStats(string from, string to, double distance, double tr
 
 void SpaceTravel::printStats() {
     cout << fixed << setprecision(2);
-    cout << "$" << totalCargo << " " << totalDistanceTraveled << " " << (totalHoursAway / 24.0) << " days\n";
+    cout << "\nFrom the cargo you dropped off you added an additional $" << (totalCargo / 100.0) << " to your payment.\n";
+    cout << "You made $" << (totalHoursAway * FLAT_RATE_PAY_HOUR) << " from your salary.\n";
+    cout << "You worked " << (totalHoursAway / 24.0) << " days\n";
 }
 
 void SpaceTravel::printLog() {
@@ -416,6 +418,7 @@ int main() {
     string destination;
     string origin = "Earth"; // Starting point
     string keepGoing = "Yes";
+    double distance = -1; // Initialize distance to an invalid value
 
     // Call functions to load the text files into the program
     journey.loadMaterials();
@@ -473,7 +476,6 @@ int main() {
 
         cout << "Calculating route from " << origin << " to " << destination << "...\n";
 
-        double distance = -1; // Initialize distance to an invalid value
         distance = journey.calculateDistance(origin, destination);
 
         if (distance < 0) {
@@ -509,7 +511,7 @@ int main() {
         
             cout << "You have chosen to travel to " << destination << ".\n";
 
-            double distance = -1; // Initialize distance to an invalid value
+            distance = -1; // Initialize distance to an invalid value
             distance = journey.calculateDistance(origin, destination);
 
             if (distance < 0) {
@@ -558,7 +560,7 @@ int main() {
         
             cout << "You have chosen to travel to " << destination << ".\n";
 
-            double distance = -1; // Initialize distance to an invalid value
+            distance = -1; // Initialize distance to an invalid value
             distance = journey.calculateDistance(origin, destination);
 
             if (distance < 0) {
@@ -569,7 +571,7 @@ int main() {
             cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
 
             cout << "Calculating fuel needed for the trip...\n";
-            double fuelNeeded = journey.calculateFuelNeeded(distance);
+            fuelNeeded = journey.calculateFuelNeeded(distance);
             cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
 
             while (fuelNeeded > fuel) {
@@ -577,7 +579,8 @@ int main() {
 
                 cin >> destination;
                 destination = capitalizeWord(destination);
-                double distance = -1; // Initialize distance to an invalid value
+                
+                distance = -1; // Initialize distance to an invalid value
                 distance = journey.calculateDistance(origin, destination);
 
                 if (distance < 0) {
