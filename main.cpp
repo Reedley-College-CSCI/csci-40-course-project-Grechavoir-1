@@ -33,12 +33,11 @@ void introMessage(const string& charName) {
          << " be a hero for your home planet!\n";
     
     cout << "\n...Loading...\n...loading...\n...loading...\n";
-    cout << "You are now in your spaceship, ready to explore the universe!\n";
+    cout << "\nYou are now in your spaceship, ready to explore the universe!\n";
     cout << "Your spaceship is fully loaded with fuel and ready to go.\n";
-    cout << "\n\nDo not fear the darkness of space, but look forward to the"
+    cout << "\nDo not fear the darkness of space, but look forward to the"
         << " nearest star!\n";
     cout << "Godspeed " << charName << "!\n";
-    cout << "...\n...\n...\n";
 }
 
 string capitalizeWord(string text){
@@ -134,6 +133,7 @@ class SpaceTravel {
         bool cargoTooClose();
         void dropOffCargo();
         void clockCountdown();
+        void cargoStatistics();
 
         double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
         double cargoSpeedSlowDown();
@@ -491,11 +491,6 @@ void SpaceTravel::convertCargoWeight() {
     cargoWeight += (cargoKilograms / tonToKilogram);
 }
 
-void SpaceTravel::printCurrentCargoCapacity() {
-    cout << "Your ship's current cargo capacity is at " << ((cargoWeight / MAX_CARGO_WEIGHT) * 100) << "%.\n";
-    cout << "Your currently have " << cargoWeight << " tons of material on board.\n";
-}
-
 bool SpaceTravel::cargoTooClose() {
     return cargoWeight >= (MAX_CARGO_WEIGHT * 0.85);
 }
@@ -516,6 +511,18 @@ void SpaceTravel::clockCountdown() {
 
     cout << "Time remaining until mandatory retirement:\n";
     cout << daysLeft << " days (" << yearsLeft << " years)\n";
+}
+
+void SpaceTravel::cargoStatistics() {
+    double cargoPercent = (cargoWeight / MAX_CARGO_WEIGHT) * 100.0;
+    double slowdownMultiplier = cargoSpeedSlowDown();
+    double slowdownPercent = (slowdownMultiplier - 1.0) * 100.0;
+
+    cout << fixed << setprecision(2);
+
+    cout << "Your cargo bay is at " << cargoPercent << "%\n";
+    cout << "The cargo bay is holding " << cargoWeight << " tons\n";
+    cout << "This is causing your trips to be " << slowdownPercent << "% longer\n";
 }
 
 //Give the planets further from Earth an increase to their cargo size
@@ -823,7 +830,7 @@ int main() {
             cout << "You should return to Earth soon to unload cargo.\n";
         }
 
-        journey.printCurrentCargoCapacity();
+        journey.cargoStatistics();
         journey.clockCountdown();
 
         cout << "\nWould you like to keep traveling? (yes/no)\n";
