@@ -41,6 +41,10 @@ void introMessage(const string& charName) {
 }
 
 string capitalizeWord(string text){
+    if (text.length() == 0) { // Issues if user doesn't enter anything
+        return text;
+    }
+
     for (int i = 0; i < text.length(); i++) {
         text[i] = tolower(text[i]); // Convert the letters to lowercase
     }
@@ -91,7 +95,6 @@ class SpaceTravel {
         double cargoWeight = 0.0;
         double totalCargo = 0.0;
         
-        
         Route routes[MAX_ROUTES];
         int routeCount = 0;
         Material materials[MAX_MATERIALS];
@@ -126,6 +129,7 @@ class SpaceTravel {
         void showPlanetMaterials(const string& planet);
         void generatePlanetPackages(const string& planet);
         void printMissionPlanets(const string& origin, const string& material);
+        string generateMissionMaterial();
 
         double calculateCargoWeight();
         void convertCargoWeight();
@@ -140,7 +144,6 @@ class SpaceTravel {
         
         double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planets
         double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
-        
         double calculateFuelPercentage(double fuel); // Function prototype to calculate fuel percetage in spaceship
         
         double getMaterialPrice(const string& materialName); // Function prototype to get material price from materials.txt
@@ -148,7 +151,6 @@ class SpaceTravel {
         double flatMaterialIncrease(const string& planet); // Function prototype to give different planets larger cargo
         double timeToRefuel(double& fuel); // Function prototype to both refuel and keep track of the time it takes
         bool validDestination(const string& destination);
-        string generateMissionMaterial();
         
         // Function to keep a running total of stats
         void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
@@ -691,10 +693,6 @@ int main() {
     string origin = "Earth"; // Starting point
     string keepGoing = "Yes";
     string requiredMaterial;
-    string stopGapYesOrNo;
-    string bridge;
-    double distance = -1; // Initialize distance to an invalid value
-    double fuelNeeded;
 
     // Call functions to load the text files into the program
     journey.loadMaterials();
@@ -702,7 +700,6 @@ int main() {
     journey.loadPlanetMaterials();
     
     double fuel = 2500.0; // Initial fuel
-    double tank = journey.calculateFuelPercentage(fuel);
 
     cout << "Hello traveler... can you please tell us your name?\n";
     
@@ -761,18 +758,15 @@ int main() {
         journey.clockCountdown();
 
         if (journey.cargoTooClose() && origin != "Earth") {
-            cout << "\n***Warning*** Your cargo bay is almost full.\n";
-            cout << "Would you like to return to Earth to unload? (yes/no)\n";
+            cout << "\n***Warning***\t" << "***AUTO PILOT ACTIVATED***\n";
+            cout << "Cargo bay is reaching full capacity and returning to Earth\n";
+            
+            bool returned = journey.trip(origin, "Earth", fuel);
 
-            string returnChoice;
-            cin >> returnChoice;
-            returnChoice = capitalizeWord(returnChoice);
-
-            if (returnChoice == "Yes") {
-                bool returned = journey.trip(origin, "Earth", fuel);
-
-                continue;
+            if (!returned) {
+                cout << "Autopilot failed. Not enough fuel to return to Earth.\n";
             }
+            continue;
         }
 
         cout << "\nWould you like to keep traveling? (yes/no)\n";
