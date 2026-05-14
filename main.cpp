@@ -87,12 +87,18 @@ class SpaceTravel {
         double calculateCargoValue(); // Function prototype to determine the total cost of a cargo package
         double flatMaterialIncrease(const string& planet); // Function prototype to give different planets larger cargo
         double timeToRefuel(double fuel); // Function prototype to both refuel and keep track of the time it takes
+        bool validDestination(const string& destination);
         // Function to keep a running total of stats
         void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
         void printStats();
         void printLog();
         bool outOfTime();
 };
+
+bool SpaceTravel::validDestination(const string& destination) {
+    return (destination == "Mercury" || destination == "Venus" || destination == "Earth" || destination == "Venus"
+         || destination == "Jupiter" || destination == "Saturn" || destination == "Uranus" || destination == "Neptune");
+}
 
 // Open the routes.txt file and read the routes into the routes array
 void SpaceTravel::loadRoutes() {
@@ -448,26 +454,22 @@ int main() {
         cin >> destination;
         destination = capitalizeWord(destination);
 
-        while (destination != "Mercury" && destination != "Venus" && destination != "Earth" && destination != "Mars" 
-              && destination != "Jupiter" && destination != "Saturn" && destination != "Neptune" && destination != "Uranus") {
+        while (!journey.validDestination(destination) || destination == origin) {
 
-            cout << "Invalid destination. Please choose from the available planets." << endl;
+            if (!journey.validDestination(destination)) {
+            cout << "Invalid destination. Please choose from the available planets.\n";
+            }
+
+            else if (destination == origin) {
+                cout << "You are already on " << origin
+                << "! Please choose a different destination.\n";
+            }
+
             cin >> destination;
-
             destination = capitalizeWord(destination);
         }
-
-        while (destination == origin) {
-            cout << "You are already on " << origin << "! Please choose a different destination." << endl;
-            cin >> destination;
-
-            destination = capitalizeWord(destination);
-        }
-
-        if (destination == "Mercury" || destination == "Venus" || destination == "Mars"|| destination == "Jupiter"
-           || destination == "Saturn" || destination == "Neptune" || destination == "Uranus") {
-            cout << "You have chosen to travel to " << destination << "!" << endl;
-        } 
+        
+        cout << "You have chosen to travel to " << destination << ".\n";
 
         cout << "Calculating route from " << origin << " to " << destination << "...\n";
 
@@ -491,26 +493,21 @@ int main() {
             cin >> destination;
             destination = capitalizeWord(destination);
             
-            while (destination != "Mercury" && destination != "Venus" && destination != "Earth" && destination != "Mars" 
-              && destination != "Jupiter" && destination != "Saturn" && destination != "Neptune" && destination != "Uranus") {
+            while (!journey.validDestination(destination) || destination == origin) {
 
-            cout << "Invalid destination. Please choose from the available planets." << endl;
-            cin >> destination;
+                if (!journey.validDestination(destination)) {
+                    cout << "Invalid destination. Please choose from the available planets.\n";
+                }
 
-            destination = capitalizeWord(destination);
-            }
+                else if (destination == origin) {
+                    cout << "You are already on " << origin << "! Please choose a different destination.\n";
+                }
 
-            while (destination == origin) {
-                cout << "You are already on " << origin << "! Please choose a different destination." << endl;
                 cin >> destination;
-
                 destination = capitalizeWord(destination);
             }
-
-            if (destination == "Mercury" || destination == "Venus" || destination == "Mars"|| destination == "Jupiter"
-                || destination == "Saturn" || destination == "Neptune" || destination == "Uranus") {
-                cout << "You have chosen to travel to " << destination << "!" << endl;
-            } 
+        
+            cout << "You have chosen to travel to " << destination << ".\n";
 
             double distance = -1; // Initialize distance to an invalid value
             distance = journey.calculateDistance(origin, destination);
@@ -530,78 +527,76 @@ int main() {
         journey.showPlanetMaterials(destination);
 
         cout << "Do you wish to choose " << destination << " as your destination? Type confirm to begin and no to choose another "
-            << " destination\n";
+            << "destination\n";
         cin >> confirm;
         confirm = capitalizeWord(confirm);
 
         while (confirm != "Confirm" && confirm != "No") {
             cout << "Invalid input. Type confirm to begin and no to choose another destination\n";
+            cin >> confirm;
+            confirm = capitalizeWord(confirm);
         }
 
         while (confirm != "Confirm") {
-        cout << "Where would you like to go to instead?\n";
-        cin >> destination;
-        destination = capitalizeWord(destination);
-
-        while (destination != "Mercury" && destination != "Venus" && destination != "Earth" && destination != "Mars" && destination != "Jupiter"
-            && destination != "Saturn" && destination != "Neptune" && destination != "Uranus") {
-            cout << "Invalid destination. Please choose from the available planets.\n";
-            cin >> destination;
-
-            destination = capitalizeWord(destination);
-        }
-
-        while (destination == "Earth") {
-            cout << "You are already on Earth! Please choose a different destination.\n";
-            cin >> destination;
-
-            destination = capitalizeWord(destination);
-        }
-
-        if (destination == "Mercury" || destination == "Venus" || destination == "Mars"|| destination == "Jupiter"
-           || destination == "Saturn" || destination == "Neptune" || destination == "Uranus") {
-            cout << "You have chosen to travel to " << destination << "!" << endl;
-        } 
-
-        double distance = -1; // Initialize distance to an invalid value
-        distance = journey.calculateDistance(origin, destination);
-
-        if (distance < 0) {
-            cout << "Unable to calculate distance.\n";
-            return 0;
-        }
-
-        cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
-
-        cout << "Calculating fuel needed for the trip...\n";
-        double fuelNeeded = journey.calculateFuelNeeded(distance);
-        cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
-
-        while (fuelNeeded > fuel) {
-            cout << "You do not have enough fuel for this trip. Please choose another destination.\n";
-
+            cout << "Where would you like to go to instead?\n";
             cin >> destination;
             destination = capitalizeWord(destination);
+
+            while (!journey.validDestination(destination) || destination == origin) {
+
+                if (!journey.validDestination(destination)) {
+                    cout << "Invalid destination. Please choose from the available planets.\n";
+                }
+
+                else if (destination == origin) {
+                    cout << "You are already on " << origin << "! Please choose a different destination.\n";
+                }
+
+                cin >> destination;
+                destination = capitalizeWord(destination);
+            }
+        
+            cout << "You have chosen to travel to " << destination << ".\n";
+
             double distance = -1; // Initialize distance to an invalid value
             distance = journey.calculateDistance(origin, destination);
 
             if (distance < 0) {
-                cout << "Unable to calculate distance." << endl;
+                cout << "Unable to calculate distance.\n";
                 return 0;
             }
-        
-            cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
-    
-            cout << "Calculating fuel needed for the trip...\n";
-            fuelNeeded = journey.calculateFuelNeeded(distance);
-            cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
-        }
-    
-        journey.showPlanetMaterials(destination);
 
-        cout << "Do you wish to choose " << destination << " as your destination? (type confirm to begin)\n";
-        cin >> confirm;
-        confirm = capitalizeWord(confirm);
+            cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
+
+            cout << "Calculating fuel needed for the trip...\n";
+            double fuelNeeded = journey.calculateFuelNeeded(distance);
+            cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
+
+            while (fuelNeeded > fuel) {
+                cout << "You do not have enough fuel for this trip. Please choose another destination.\n";
+
+                cin >> destination;
+                destination = capitalizeWord(destination);
+                double distance = -1; // Initialize distance to an invalid value
+                distance = journey.calculateDistance(origin, destination);
+
+                if (distance < 0) {
+                    cout << "Unable to calculate distance." << endl;
+                    return 0;
+                }
+        
+                cout << "The distance from " << origin << " to " << destination << " is " << distance << " million kilometers.\n";
+    
+                cout << "Calculating fuel needed for the trip...\n";
+                fuelNeeded = journey.calculateFuelNeeded(distance);
+                cout << endl << "Fuel needed for the trip: " << fuelNeeded << " units.\n";
+            }
+    
+            journey.showPlanetMaterials(destination);
+
+            cout << "Do you wish to choose " << destination << " as your destination? (type confirm to begin)\n";
+            cin >> confirm;
+            confirm = capitalizeWord(confirm);
         }
     
         fuel -= fuelNeeded; // Update fuel after the trip
