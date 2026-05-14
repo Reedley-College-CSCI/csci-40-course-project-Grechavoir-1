@@ -100,7 +100,7 @@ class SpaceTravel {
         double getMaterialPrice(const string& materialName); // Function prototype to get material price from materials.txt
         double calculateCargoValue(); // Function prototype to determine the total cost of a cargo package
         double flatMaterialIncrease(const string& planet); // Function prototype to give different planets larger cargo
-        double timeToRefuel(double fuel); // Function prototype to both refuel and keep track of the time it takes
+        double timeToRefuel(double& fuel); // Function prototype to both refuel and keep track of the time it takes
         bool validDestination(const string& destination);
         string generateMissionMaterial();
         
@@ -414,11 +414,15 @@ double SpaceTravel::calculateTravelTime(double distance) {
     return timeNeeded;
 }
 
-double SpaceTravel::timeToRefuel(double fuel) {
-    int time = 0;
+double SpaceTravel::timeToRefuel(double& fuel) {
+    double time = 0;
     while (MAX_FUEL > fuel) {
         fuel += refuelSpeed;
         time++;
+    }
+
+    if (MAX_FUEL < fuel) {
+            fuel = MAX_FUEL;
     }
     return time;
 }
@@ -690,7 +694,6 @@ int main() {
         int refuelTime = journey.timeToRefuel(fuel);
         cout << "After " << refuelTime << " hours, your spaceship is ready to fly again.\n";
         double cargo = journey.calculateCargoValue();
-        fuel = 1500.0;
 
         journey.updateStats(origin, destination, distance, time, refuelTime, cargo);
 
@@ -700,6 +703,7 @@ int main() {
             cout << "\nYou have reached the maximum mission time and must retire.\n";
             break;
         }
+        cout << "Your tank is now at " << fuel << " units";
         cout << "\nWould you like to keep traveling? (yes/no)\n";
         cin >> keepGoing;
         keepGoing = capitalizeWord(keepGoing);
