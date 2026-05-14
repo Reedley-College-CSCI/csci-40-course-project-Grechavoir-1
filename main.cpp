@@ -141,6 +141,7 @@ class SpaceTravel {
         double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
         
         double calculateFuelPercentage(double fuel); // Function prototype to calculate fuel percetage in spaceship
+        bool stopGapPlanet(string& origin, string destination, double& fuel);
         
         double getMaterialPrice(const string& materialName); // Function prototype to get material price from materials.txt
         double calculateCargoValue(); // Function prototype to determine the total cost of a cargo package
@@ -153,6 +154,7 @@ class SpaceTravel {
         void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
         void printStats();
         void printLog();
+        void goodbyeLog();
         bool outOfTime();
 };
 
@@ -562,6 +564,39 @@ double SpaceTravel::calculateFuelPercentage(double fuel) {
     return fuelPercentage;
 }
 
+bool SpaceTravel::stopGapPlanet(string& origin, string destination, double& fuel) {
+    double distance = calculateDistance(origin, destination);
+
+    if (distance < 0) {
+        cout << "Unable to calculate bridge route.\n";
+        return false;
+    }
+
+    double fuelNeeded = calculateFuelNeeded(distance);
+
+    if (fuelNeeded > fuel) {
+        cout << "You do not have enough fuel to reach this bridge planet.\n";
+        return false;
+    }
+
+    fuel -= fuelNeeded;
+
+    double travelTime = calculateTravelTime(distance);
+    double refuelTime = timeToRefuel(fuel);
+
+    updateStats(origin, destination, distance, travelTime, refuelTime, 0.0);
+
+    cout << "\nBridge stop complete.\n";
+    cout << "You traveled from " << origin << " to " << destination << ".\n";
+    cout << "Travel time: " << travelTime / 24.0 << " days.\n";
+    cout << "Refuel time: " << refuelTime << " hours.\n";
+    cout << "Fuel is now " << fuel << " units.\n";
+
+    origin = destination;
+
+    return true;
+}
+
 //calculate travel time for a trip
 double SpaceTravel::calculateTravelTime(double distance) {
     double timeNeeded = (distance * 1000000) / rateOfSpeed; // Time in hours
@@ -630,6 +665,38 @@ bool SpaceTravel::outOfTime() {
     return totalHoursAway >= MAX_TOTAL_HOURS;
 }
 
+void SpaceTravel::goodbyeLog() {
+    ofstream outFS;
+
+    // Open file
+   outFS.open("Farewell.txt");
+
+   if (!outFS.is_open()) {
+      cout << "Could not open file Farewell.txt." << endl;
+      return;
+   }
+
+   outFS << fixed << setprecision(2);
+
+   for (int i = 0; i < trips; i++) {
+        outFS << "Trip #" << i + 1 << endl;
+        outFS << "From: " << travelLog[i].from << endl;
+        outFS << "To: " << travelLog[i].to << endl;
+        outFS << "Distance: " << travelLog[i].distance << " million kilometers" << endl;
+        outFS << "Time: " << travelLog[i].totalHours / 24.0 << " days" << endl;
+        outFS << "Cargo value: $" << travelLog[i].cargo << endl;
+        outFS << endl;
+    }
+
+    outFS << "Total cargo payment bonus: $" << totalCargo / 100.0 << endl;
+    outFS << "Total salary: $" << totalHoursAway * FLAT_RATE_PAY_HOUR << endl;
+    outFS << "Total days worked: " << totalHoursAway / 24.0 << endl;
+
+    outFS.close();
+
+    cout << "\nTravel log saved to Farewell.txt\n";
+}
+
 int main() {
     srand(time(0));
     cout << fixed << setprecision(2); // Set decimal precision for output
@@ -641,6 +708,8 @@ int main() {
     string origin = "Earth"; // Starting point
     string keepGoing = "Yes";
     string requiredMaterial;
+    string stopGapYesOrNo;
+    string bridge;
     double distance = -1; // Initialize distance to an invalid value
     double fuelNeeded;
 
@@ -683,9 +752,29 @@ int main() {
         destination = journey.getDestinationPlanet();
 
         while (!journey.fuelCheck(origin, destination, fuel)) {
-            cout << "You do not have enough fuel to travel to "
-            << destination << ".\n";
-            cout << "Please choose another planet from the mission list.\n";
+            cout << "You do not have enough fuel to travel to " << destination << ".\n";
+            cout << "do you want to do a stop at a planet along the way to refuel? (yes/no)\n";
+            cin >> stopGapYesOrNo;
+            stopGapYesOrNo = capitalizeWord(stopGapYesOrNo);
+            while (stopGapYesOrNo != "Yes" && stopGapYesOrNo != "No") {
+                cout << "Please input 'yes' or 'no'";
+                cin >> stopGapYesOrNo;
+                stopGapYesOrNo = capitalizeWord(stopGapYesOrNo);
+            }
+            cout << "Choose a bridge planet to stop and refuel:\n";
+            journey.printPlanetDistances(origin);
+
+            cin >> bridge;
+            bridge = capitalizeWord(bridge);
+
+            while (bridge == origin || !journey.fuelCheck(origin, bridge, fuel)) {
+                cout << "Invalid bridge stop or not enough fuel. Choose another planet:\n";
+                cin >> bridge;
+                bridge = capitalizeWord(bridge);
+            }
+
+            journey.stopGapPlanet(origin, bridge, fuel);
+            
 
             destination = journey.getDestinationPlanet();
         }
@@ -735,7 +824,7 @@ int main() {
         }
     }
     journey.printStats();
-    journey.printLog();
+    //journey.printLog();
 
     return 0;
 }
