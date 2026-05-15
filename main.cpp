@@ -156,8 +156,12 @@ class SpaceTravel {
         void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
         void printStats();
         void printLog();
-        void goodbyeLog(const string& charName);
         bool outOfTime();
+
+        void goodbyeLog(const string& charName);
+
+        void addNewMaterial();
+        bool validPlanetName(const string& planet);
 };
 
 // Open the routes.txt file and read the routes into the routes array
@@ -196,7 +200,7 @@ void SpaceTravel::loadPlanets() {
     fstream infile("planets.txt"); // Open the file for reading
 
     if (!infile) {
-        cout << "Error: Could not open materials.txt\n";
+        cout << "Error: Could not open planets.txt\n";
         return;
     }
 
@@ -682,6 +686,83 @@ void SpaceTravel::goodbyeLog(const string& charName) {
     cout << "\nTravel log saved to Farewell.txt\n";
 }
 
+void SpaceTravel::addNewMaterial() {
+    
+    ofstream materialFS("materials.txt", ios::app);
+    ofstream planetFS("planet_materials.txt", ios::app);
+
+    if (!materialFS.is_open()) {
+        cout << "Could not open materials.txt\n";
+        return;
+    }
+
+    if (!planetFS.is_open()) {
+        cout << "Could not open planet_materials.txt\n";
+        return;
+    }
+
+    string material;
+    string planet;
+    double cost;
+
+    cout << "Enter new material name:\n";
+    cin >> material;
+    material = capitalizeWord(material);
+
+    cout << "Enter material price per kg:\n";
+    cin >> cost;
+
+    // Add material to materials.txt
+    materialFS << fixed << setprecision(2);
+    materialFS << endl << material << " 0 " << cost;
+
+    cout << "\nEnter planets where " << material << " is found.\n";
+    cout << "Type 'done' when finished.\n";
+
+    while (true) {
+
+        cout << "Planet: ";
+        cin >> planet;
+
+        planet = capitalizeWord(planet);
+
+        if (planet == "Done") {
+            break;
+        }
+
+        while (!validPlanetName(planet)) {
+            cout << "Invalid planet. Please choose one of the known planets.\n";
+
+            cin >> planet;
+            planet = capitalizeWord(planet);
+
+            if (planet == "Done") {
+                break;
+            }
+        }
+
+        planetFS << endl << planet << " " << material;
+
+        cout << material << " added to " << planet << ".\n";
+    }
+
+    materialFS.close();
+    planetFS.close();
+
+    cout << "\nNew material successfully added.\n";
+}
+
+bool SpaceTravel::validPlanetName(const string& planet) {
+    for (int i = 0; i < planetCount; i++) {
+        if (planet == planets[i]) {
+            return true;
+        }
+    }
+
+    return false;
+
+}
+
 int main() {
     srand(time(0));
     cout << fixed << setprecision(2); // Set decimal precision for output
@@ -698,6 +779,7 @@ int main() {
     journey.loadMaterials();
     journey.loadRoutes();
     journey.loadPlanetMaterials();
+    journey.loadPlanets();
     
     double fuel = 2500.0; // Initial fuel
 
@@ -722,6 +804,38 @@ int main() {
     }
 
     introMessage(charName);
+
+    cout << "Before you get started on your journey.  Do you wish to add any elements to the database? (yes/no)\n";
+    cout << "Note: Adding multiple elements to one planet does not gain an advantage as it program adjusts to make it fair.\n";
+    string add;
+    cin >> add;
+    add = capitalizeWord(add);
+
+    while (add != "Yes" && add != "No") {
+        cout << "Please type yes or no:\n";
+        cin >> add;
+
+        add = capitalizeWord(add);
+    }
+
+    while (add == "Yes") {
+
+    journey.addNewMaterial();
+
+    cout << "\nWould you like to add another material? (yes/no)\n";
+    cin >> add;
+
+    add = capitalizeWord(add);
+
+    while (add != "Yes" && add != "No") {
+        cout << "Please type yes or no:\n";
+        cin >> add;
+
+        add = capitalizeWord(add);
+    }
+}
+
+
 
     while (keepGoing == "Yes" && !journey.outOfTime()) {
         requiredMaterial = journey.generateMissionMaterial();
