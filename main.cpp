@@ -86,7 +86,7 @@ class SpaceTravel {
         double FLAT_FUEL_CONSUMPTION_RATE = 0.5; // Flat fuel consumption rate per million kilometers
         double FLAT_RATE_PAY_HOUR = 50.0; // Flat pay rate for each hour of travel
         
-        double rateOfSpeed = (6000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
+        double rateOfSpeed = (4000000.0 / 24.0); // Speed of the spaceship in kilometers per hour
         double tonToKilogram = 907.18; // Conversion factor from kilograms to tons
         double refuelSpeed = 5.0; // Variable for how many units per hour are refueled in the ship
         
@@ -117,51 +117,42 @@ class SpaceTravel {
         void loadPlanets();
         void loadPlanetMaterials(); 
 
-        void printPlanets(); // Function prototype to print planet names from a file
-        void printMaterials(); // Function prototype to print materials from the file
-        void printPlanetDistances(const string& location);
+        bool trip(string& origin, string destination, double& fuel);
+            void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
+            double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
+            double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
+            double timeToRefuel(double& fuel); // Function prototype to both refuel and keep track of the time it takes
+            void convertCargoWeight();
+                double calculateCargoWeight();
+            void dropOffCargo();
+            void generatePlanetPackages(const string& planet);
+                double calculateCargoValue(); // Function prototype to determine the total cost of a cargo package
+                int countPlanetMaterials(const string& planet);
+                double flatMaterialIncrease(const string& planet); // Function prototype to give different planets larger cargo
 
         string getDestinationPlanet();
+            bool validDestination(const string& destination);
         string confirmUserChoice();
-        bool trip(string& origin, string destination, double& fuel);
-        bool fuelCheck(string origin, string destination, double fuel);
-        
         void showPlanetMaterials(const string& planet);
-        void generatePlanetPackages(const string& planet);
-        int countPlanetMaterials(const string& planet);
         void printMissionPlanets(const string& origin, const string& material);
         string generateMissionMaterial();
-
-        double calculateCargoWeight();
-        void convertCargoWeight();
-        void printCurrentCargoCapacity();
         bool cargoTooClose();
-        void dropOffCargo();
+        
         void clockCountdown();
         void cargoStatistics();
-
-        double calculateTravelTime(double distance); // Function prototype to calculate travel time for a trip
         double cargoSpeedSlowDown();
-        
-        double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planets
-        double calculateFuelNeeded(double distance); // Function prototype to calculate fuel needed for a trip
+        double calculateDistance(const string& from, const string& to); // Function prototype to calculate distance between planet
         double calculateFuelPercentage(double fuel); // Function prototype to calculate fuel percetage in spaceship
-        
         double getMaterialPrice(const string& materialName); // Function prototype to get material price from materials.txt
-        double calculateCargoValue(); // Function prototype to determine the total cost of a cargo package
-        double flatMaterialIncrease(const string& planet); // Function prototype to give different planets larger cargo
-        double timeToRefuel(double& fuel); // Function prototype to both refuel and keep track of the time it takes
-        bool validDestination(const string& destination);
+        void farewellMessage(const string& charName);
         
-        // Function to keep a running total of stats
-        void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
-        void printStats();
+        void printStats(); // Function to keep a running total of stats
         bool outOfTime();
 
         void goodbyeLog(const string& charName);
 
         void addNewMaterial();
-        bool validPlanetName(const string& planet);
+            bool validPlanetName(const string& planet);
 };
 
 // Open the routes.txt file and read the routes into the routes array
@@ -182,6 +173,8 @@ void SpaceTravel::loadRoutes() {
 
 //Load materials
 void SpaceTravel::loadMaterials() {
+    materialCount = 0;
+
     fstream infile("materials.txt"); // Open the file for reading
 
     if (!infile) {
@@ -213,6 +206,8 @@ void SpaceTravel::loadPlanets() {
 
 // Open the routes.txt file and read the routes into the routes array
 void SpaceTravel::loadPlanetMaterials() {
+    planetMaterialCount = 0;
+
     fstream infile("planet_materials.txt"); // Open the file for reading
 
     if (!infile) {
@@ -261,12 +256,20 @@ string SpaceTravel::confirmUserChoice() {
 
 bool SpaceTravel::trip(string& origin, string destination, double& fuel) {
     double distance = calculateDistance(origin, destination);
+
     if (distance < 0) {
         cout << "Unable to calculate distance.\n";
         return false;
     }
 
     double fuelNeeded = calculateFuelNeeded(distance);
+
+    if (fuelNeeded > fuel) {
+        cout << "Not enough fuel for this trip.\n";
+        cout << "Fuel needed: " << fuelNeeded << "\n";
+        cout << "Fuel available: " << fuel << "\n";
+        return false;
+    }
 
     fuel -= fuelNeeded;
 
@@ -293,13 +296,6 @@ bool SpaceTravel::trip(string& origin, string destination, double& fuel) {
     cout << "Your tank is now at " << fuel << " units.\n";
 
     return true;
-}
-
-bool SpaceTravel::fuelCheck(string origin, string destination, double fuel) {
-    double distance = calculateDistance(origin, destination);
-    double fuelNeeded = calculateFuelNeeded(distance);
-
-    return fuelNeeded <= fuel;
 }
 
 string SpaceTravel::generateMissionMaterial() {
@@ -383,17 +379,6 @@ void SpaceTravel::printStats() {
     cout << "\nFrom the cargo you dropped off you added an additional $" << (totalCargo / 100.0) << " to your payment.\n";
     cout << "You made $" << (totalHoursAway * FLAT_RATE_PAY_HOUR) << " from your salary.\n";
     cout << "You worked " << (totalHoursAway / 24.0) << " days\n";
-}
-
-//Print materials
-void SpaceTravel::printMaterials() {
-    cout << "\nAvailable Materials:\n";
-
-    for (int i = 0; i < materialCount; i++) {
-        cout << "** " << materials[i].name << " **\n"
-            << " Amount: " << materials[i].amount << " tons"
-            << " Price: $" << materials[i].cost << endl;
-    }
 }
 
 //Show materials at target planet
@@ -582,7 +567,7 @@ double SpaceTravel::calculateDistance(const string& from, const string& to) {
         }
     }
     cout << "Error: Route from " << from << " to " << to << " not found.\n";
-    return -1; // indicate that the route was not found}
+    return -1; // indicate that the route was not found
 }
 
 //calculate fuel needed for a trip
@@ -622,43 +607,6 @@ double SpaceTravel::timeToRefuel(double& fuel) {
             fuel = MAX_FUEL;
     }
     return time;
-}
-
-void SpaceTravel::printPlanetDistances(const string& location) {
-    cout << "Here are your possible destinations and the distances.\n";
-
-    int i = 0; 
-    int j = 0;
-    Route planetRoutes[MAX_ROUTES];
-    int count = 0;
-
-    // Collect only routes leaving from the selected planet
-    for (i = 0; i < routeCount; i++) {
-        if (routes[i].from == location) {
-            planetRoutes[count] = routes[i];
-            count++;
-        }
-    }
-
-    // Sort routes by distance (smallest to largest) with selection sort
-    for (i = 0; i < count - 1; i++) {
-        for (j = i + 1; j < count; j++) {
-            if (planetRoutes[i].distance > planetRoutes[j].distance) {
-
-                // Swap routes
-                Route temp = planetRoutes[i];
-                planetRoutes[i] = planetRoutes[j];
-                planetRoutes[j] = temp;
-            }
-        }
-    }
-
-    // Print sorted routes
-    for (i = 0; i < count; i++) {
-        cout << "- " << planetRoutes[i].to
-             << " : " << planetRoutes[i].distance
-             << " million kilometers\n";
-    }
 }
 
 bool SpaceTravel::outOfTime() {
@@ -775,6 +723,14 @@ bool SpaceTravel::validPlanetName(const string& planet) {
 
 }
 
+void SpaceTravel::farewellMessage(const string& charName) {
+    printStats();
+    cout << "\nWelcome back home " << charName << ".  How was the endless abyss of space?\n";
+    cout << "You did well, not many could go as long as you did out there.  It really is a great horror...\n";
+    cout << "Anyways, we have your logs all prepared for you once you get off this cursed ship.\n";
+    cout << "Oh... and excelsior.\n";
+}
+
 int main() {
     srand(time(0));
     cout << fixed << setprecision(2); // Set decimal precision for output
@@ -832,22 +788,23 @@ int main() {
 
     while (add == "Yes") {
 
-    journey.addNewMaterial();
+        journey.addNewMaterial();
 
-    cout << "\nWould you like to add another material? (yes/no)\n";
-    cin >> add;
-
-    add = capitalizeWord(add);
-
-    while (add != "Yes" && add != "No") {
-        cout << "Please type yes or no:\n";
+        cout << "\nWould you like to add another material? (yes/no)\n";
         cin >> add;
 
         add = capitalizeWord(add);
+
+        while (add != "Yes" && add != "No") {
+            cout << "Please type yes or no:\n";
+            cin >> add;
+
+            add = capitalizeWord(add);
+        }
     }
-}
 
-
+    journey.loadMaterials();
+    journey.loadPlanetMaterials();
 
     while (keepGoing == "Yes" && !journey.outOfTime()) {
         requiredMaterial = journey.generateMissionMaterial();
@@ -875,24 +832,21 @@ int main() {
             continue;
         }
 
-        if (journey.cargoTooClose() && origin != "Earth") {
-            cout << "\nWarning: Your cargo bay is almost full.\n";
-            cout << "You should return to Earth soon to unload cargo.\n";
-        }
-
         journey.cargoStatistics();
         journey.clockCountdown();
 
         if (journey.cargoTooClose() && origin != "Earth") {
             cout << "\n***Warning***\t" << "***AUTO PILOT ACTIVATED***\n";
             cout << "Cargo bay is reaching full capacity and returning to Earth\n";
-            
+
             bool returned = journey.trip(origin, "Earth", fuel);
 
             if (!returned) {
                 cout << "Autopilot failed. Not enough fuel to return to Earth.\n";
             }
-            continue;
+            else {
+                cout << "\nYou are now in orbit above Earth.\n";
+            }
         }
 
         cout << "\nWould you like to keep traveling? (yes/no)\n";
@@ -906,7 +860,7 @@ int main() {
             keepGoing = capitalizeWord(keepGoing);
         }
     }
-    journey.printStats();
+    journey.farewellMessage(charName);
     journey.goodbyeLog(charName);
 
     return 0;
