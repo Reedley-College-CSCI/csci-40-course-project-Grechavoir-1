@@ -128,6 +128,7 @@ class SpaceTravel {
         
         void showPlanetMaterials(const string& planet);
         void generatePlanetPackages(const string& planet);
+        int countPlanetMaterials(const string& planet);
         void printMissionPlanets(const string& origin, const string& material);
         string generateMissionMaterial();
 
@@ -155,7 +156,6 @@ class SpaceTravel {
         // Function to keep a running total of stats
         void updateStats(string from, string to, double distance, double travelTime, double refuelTime, double cargo); 
         void printStats();
-        void printLog();
         bool outOfTime();
 
         void goodbyeLog(const string& charName);
@@ -385,16 +385,6 @@ void SpaceTravel::printStats() {
     cout << "You worked " << (totalHoursAway / 24.0) << " days\n";
 }
 
-void SpaceTravel::printLog() {
-    for (int i = 0; i < trips; i++) {
-        cout << "\nTrip #" << i + 1 << " stats\n";
-        cout << "You went from " << travelLog[i].from << " to " << travelLog[i].to << "\n";
-        cout << "You this trip was " << travelLog[i].distance << " million kilometers. "
-         << "and it took " << (travelLog[i].totalHours / 24.0) << " days.\n";
-        cout << "The cargo you recieved from this trip was worth $" << travelLog[i].cargo << "\n";
-    }
-}
-
 //Print materials
 void SpaceTravel::printMaterials() {
     cout << "\nAvailable Materials:\n";
@@ -438,25 +428,47 @@ void SpaceTravel::generatePlanetPackages(const string& planet) {
 
     cargoCount = 0;
 
+    int materialTotal = countPlanetMaterials(planet);
+
+    if (materialTotal == 0) {
+        cout << "No cargo available.\n";
+        return;
+    }
+
     for (int i = 0; i < planetMaterialCount; i++) {
 
         if (planetMaterial[i].planet == planet) {
 
-            int kilograms = 100 + rand() % 901;
+            int kilograms = 500 + rand() % 5001; // generate random number for each material
 
-            cargo[cargoCount].name = planetMaterial[i].material;
+            cargo[cargoCount].name = planetMaterial[i].material; // start filling array for the name
 
-            cargo[cargoCount].amount = kilograms * (1 + flatMaterialIncrease(planet));
+            //To balance the planets, the material total is going to be divided from the kilograms so that a planet with
+            //20 elements for will be just as equal to a planet with 10 elements apart from their distances and the randomness
+            cargo[cargoCount].amount =
+                (kilograms / static_cast<double>(materialTotal)) * (1 + flatMaterialIncrease(planet));
 
-            cargo[cargoCount].cost = getMaterialPrice(planetMaterial[i].material);
-                
-            cout << "- " << cargo[cargoCount].name << ": " << cargo[cargoCount].amount << " kg\n";
+            cargo[cargoCount].cost = getMaterialPrice(planetMaterial[i].material); // Use the materials.txt file to get the cost
+
+            cout << "- " << cargo[cargoCount].name << ": " << cargo[cargoCount].amount << " kg\n";  //output what we got
 
             cargoCount++;
         }
     }
+    cout << "\nTotal cargo value: $" << calculateCargoValue() << endl; // Use our function to display the price of our cargo
+}
 
-    cout << "\nTotal cargo value: $" << calculateCargoValue() << endl;
+int SpaceTravel::countPlanetMaterials(const string& planet) {
+    int count = 0;
+
+    for (int i = 0; i < planetMaterialCount; i++) {
+        if (planetMaterial[i].planet == planet) {
+            count++;
+        }
+    }
+
+    return count;
+
 }
 
 //Search for material price
@@ -895,7 +907,6 @@ int main() {
         }
     }
     journey.printStats();
-    //journey.printLog();
     journey.goodbyeLog(charName);
 
     return 0;
